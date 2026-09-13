@@ -21,7 +21,7 @@ styles.css    all styling (design tokens, layout, components)
 app.js        all app logic — content data, state, rendering, event handling
 ```
 
-`index.html` is written as a body fragment (no `<!doctype>`/`<html>`/`<head>` wrapper) because it was originally built and hosted as a Claude Artifact, which supplies that wrapper automatically. Browsers still render it correctly when served directly like this, but if you ever want a fully spec-clean document (e.g. to avoid quirks mode), you can wrap it in a standard `<!doctype html><html><head>…</head><body>…</body></html>` shell yourself — nothing in `app.js` or `styles.css` depends on it either way.
+`index.html` is a standard HTML5 document (doctype, `<head>` with charset/viewport meta, `<body>`). It started life as a body fragment for Claude Artifact hosting, which supplies that wrapper automatically — the standalone version below adds it explicitly so the page has a real `<meta name="viewport">` tag, which mobile browsers require to render the responsive layout at the correct scale instead of zooming out to a desktop-width view.
 
 ## Running locally
 
