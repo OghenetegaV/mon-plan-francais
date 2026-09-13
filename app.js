@@ -360,6 +360,8 @@ var DICT = {
       genericError: "Une erreur est survenue. Réessayez."
     },
     catAria: "Mascotte",
+    themeToLight: "Passer au thème clair",
+    themeToDark: "Passer au thème sombre",
     tour: {
       calendar: "Voici ton calendrier de 90 jours — touche un jour pour voir son programme détaillé.",
       test: "Clique ici pour réviser tes fiches de vocabulaire et faire un quiz.",
@@ -525,6 +527,8 @@ var DICT = {
       genericError: "Something went wrong. Please try again."
     },
     catAria: "Mascot",
+    themeToLight: "Switch to light mode",
+    themeToDark: "Switch to dark mode",
     tour: {
       calendar: "This is your 90-day calendar — tap any day to see its detailed schedule.",
       test: "Tap here to review your flashcards and take a quiz.",
@@ -724,7 +728,7 @@ function blocksForWeekday(weekdayJs){ return weekdayJs===0 ? BLOCKS_SUNDAY : BLO
 
 /* ---------------- state ---------------- */
 function defaultState(){
-  return { startDate: "2026-09-12", startDateChangedOnce: false, onboardingSeen: false, examTarget: "TEF", lang: "fr", tasks: {}, notes: { listening:"", reading:"", speaking:"", writing:"" }, quizScores: {}, quizHistory: [], tcfScores: { listening:null, reading:null, speaking:null, writing:null } };
+  return { startDate: "2026-09-12", startDateChangedOnce: false, onboardingSeen: false, examTarget: "TEF", lang: "fr", theme: "system", tasks: {}, notes: { listening:"", reading:"", speaking:"", writing:"" }, quizScores: {}, quizHistory: [], tcfScores: { listening:null, reading:null, speaking:null, writing:null } };
 }
 /* merges a raw state blob (as loaded from Supabase) over the defaults, so any field
    added to the app after a user's row was first created still gets a sane fallback */
@@ -1182,6 +1186,7 @@ function renderSplash(){
   var t = T(preAuthLang()).auth;
   return ''
   +'<div class="splash-screen">'
+    +renderThemeToggleButton('screen-theme-toggle')
     +'<div class="splash-logo">🥐</div>'
     +'<h1 class="splash-title">Tia\'s French Plan</h1>'
     +'<div class="splash-spinner" aria-hidden="true"></div>'
@@ -1189,7 +1194,7 @@ function renderSplash(){
   +'</div>';
 }
 function renderAuthCard(inner){
-  return '<div class="auth-screen"><div class="auth-card">'+inner+'</div></div>';
+  return '<div class="auth-screen">'+renderThemeToggleButton('screen-theme-toggle')+'<div class="auth-card">'+inner+'</div></div>';
 }
 function renderAuthError(){
   return uiAuthError ? '<div class="auth-error">'+esc(uiAuthError)+'</div>' : '';
@@ -1299,6 +1304,27 @@ function renderAuthScreen(){
   }
 }
 
+/* ---------------- light/dark theme ---------------- */
+function resolvedTheme(){
+  if(STATE.theme === 'light' || STATE.theme === 'dark') return STATE.theme;
+  try{ return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light'; }catch(e){ return 'light'; }
+}
+function applyTheme(){
+  if(STATE.theme === 'light' || STATE.theme === 'dark'){
+    document.documentElement.setAttribute('data-theme', STATE.theme);
+  } else {
+    document.documentElement.removeAttribute('data-theme'); // follow system (prefers-color-scheme)
+  }
+}
+function renderThemeToggleButton(extraClass){
+  var lang = STATE.lang || 'fr';
+  var t = T(lang);
+  var current = resolvedTheme();
+  var icon = current === 'dark' ? '☀️' : '🌙';
+  var label = current === 'dark' ? t.themeToLight : t.themeToDark;
+  return '<button type="button" class="theme-toggle'+(extraClass?' '+extraClass:'')+'" data-action="toggle-theme" aria-label="'+esc(label)+'">'+icon+'</button>';
+}
+
 /* ---------------- cat companion (CSS/SVG mascot) ---------------- */
 var CAT_MESSAGES = {
   fr: {
@@ -1393,6 +1419,7 @@ function renderTopBar(){
   +'<header class="top-bar">'
     +'<div class="top-brand">🥐 <span>'+esc(t.heroSub)+'</span></div>'
     +'<div class="top-profile">'
+      +renderThemeToggleButton()
       +'<button type="button" class="profile-avatar" data-action="toggle-profile-menu" aria-label="'+esc(t.auth.profileMenuAria)+'">'+esc(initial)+'</button>'
       +(uiProfileMenuOpen ? (''
         +'<div class="profile-menu">'
@@ -1990,6 +2017,7 @@ async function doLogout(){
 /* ---------------- render + events ---------------- */
 function render(){
   document.documentElement.setAttribute('lang', STATE.lang || 'fr');
+  applyTheme();
   var root = document.getElementById('root');
   root.innerHTML = uiAuthView !== 'app' ? renderAuthScreen() : bodyContentHTML(STATE, uiOpenDay);
   if(uiAuthView === 'app' && uiTourStep !== null) positionTour();
@@ -2015,6 +2043,12 @@ function onRootClick(e){
       scheduleSave();
       if(!STATE.onboardingSeen) startTour(); else render();
     }
+    return;
+  }
+  if(action==='toggle-theme'){
+    STATE.theme = resolvedTheme() === 'dark' ? 'light' : 'dark';
+    render();
+    scheduleSave();
     return;
   }
   if(action==='cat-tap'){
@@ -2174,5 +2208,11 @@ document.addEventListener('DOMContentLoaded', function(){
   document.getElementById('root').addEventListener('click', onRootClick);
   document.getElementById('root').addEventListener('change', onRootChange);
   document.getElementById('root').addEventListener('input', onRootInput);
+  try{
+    var darkMedia = window.matchMedia('(prefers-color-scheme: dark)');
+    darkMedia.addEventListener('change', function(){
+      if(STATE.theme !== 'light' && STATE.theme !== 'dark') render(); // only matters while following the system setting
+    });
+  }catch(e){}
   initAuthFlow();
 });
