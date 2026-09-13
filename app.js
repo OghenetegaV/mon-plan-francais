@@ -349,9 +349,26 @@ var DICT = {
       hidePassword: "Masquer le mot de passe",
       signedInAs: "Connecté(e) en tant que",
       logout: "Se déconnecter",
+      profileMenuAria: "Menu du compte",
+      replayTour: "Revoir la visite guidée",
+      changeDay1: "Changer le Jour 1",
+      day1Title: "Choisis ton Jour 1",
+      day1Hint: "C'est la date de départ de ton plan de 90 jours — choisis-la bien !",
+      day1Confirm: "Valider",
       configErrorTitle: "Configuration manquante",
       configErrorMsg: "Ce site n'est pas encore connecté à une base de données. Renseignez SUPABASE_URL et SUPABASE_ANON_KEY dans supabase-config.js.",
       genericError: "Une erreur est survenue. Réessayez."
+    },
+    catAria: "Mascotte",
+    tour: {
+      calendar: "Voici ton calendrier de 90 jours — touche un jour pour voir son programme détaillé.",
+      test: "Clique ici pour réviser tes fiches de vocabulaire et faire un quiz.",
+      results: "Retrouve ici l'historique de tous tes quiz.",
+      profile: "Ton compte, la relecture de cette visite et la déconnexion sont ici.",
+      cat: "Et moi, je suis toujours là pour t'encourager — touche-moi !",
+      next: "Suivant",
+      skip: "Passer",
+      done: "C'est parti ! 🎉"
     },
     fcTitle: "Test",
     fcHint: "Révisez le vocabulaire par thème, puis testez-vous",
@@ -497,9 +514,26 @@ var DICT = {
       hidePassword: "Hide password",
       signedInAs: "Signed in as",
       logout: "Log out",
+      profileMenuAria: "Account menu",
+      replayTour: "Replay the guided tour",
+      changeDay1: "Change Day 1",
+      day1Title: "Pick your Day 1",
+      day1Hint: "This is the start date of your 90-day plan — choose it carefully!",
+      day1Confirm: "Confirm",
       configErrorTitle: "Missing configuration",
       configErrorMsg: "This site isn't connected to a database yet. Fill in SUPABASE_URL and SUPABASE_ANON_KEY in supabase-config.js.",
       genericError: "Something went wrong. Please try again."
+    },
+    catAria: "Mascot",
+    tour: {
+      calendar: "This is your 90-day calendar — tap any day to see its detailed schedule.",
+      test: "Tap here to review your flashcards and take a quiz.",
+      results: "Find the history of every quiz you've taken here.",
+      profile: "Your account, replaying this tour, and logout all live here.",
+      cat: "And I'm always here if you need encouragement — tap me!",
+      next: "Next",
+      skip: "Skip",
+      done: "Let's go! 🎉"
     },
     fcTitle: "Test",
     fcHint: "Review vocabulary by theme, then test yourself",
@@ -690,7 +724,7 @@ function blocksForWeekday(weekdayJs){ return weekdayJs===0 ? BLOCKS_SUNDAY : BLO
 
 /* ---------------- state ---------------- */
 function defaultState(){
-  return { startDate: "2026-09-12", startDateChangedOnce: false, examTarget: "TEF", lang: "fr", tasks: {}, notes: { listening:"", reading:"", speaking:"", writing:"" }, quizScores: {}, quizHistory: [], tcfScores: { listening:null, reading:null, speaking:null, writing:null } };
+  return { startDate: "2026-09-12", startDateChangedOnce: false, onboardingSeen: false, examTarget: "TEF", lang: "fr", tasks: {}, notes: { listening:"", reading:"", speaking:"", writing:"" }, quizScores: {}, quizHistory: [], tcfScores: { listening:null, reading:null, speaking:null, writing:null } };
 }
 /* merges a raw state blob (as loaded from Supabase) over the defaults, so any field
    added to the app after a user's row was first created still gets a sane fallback */
@@ -709,6 +743,13 @@ var STATE = defaultState();
 var uiOpenDay = null;
 var uiActiveTab = 'plan';
 var saveTimer = null;
+var uiShowDay1Modal = false;
+var uiProfileMenuOpen = false;
+var uiTourStep = null; // index into TOUR_STEPS, or null when no tour is running
+var uiCatMood = 'idle';
+var uiCatBubbleOpen = false;
+var uiCatBubbleMsg = '';
+var catMoodTimer = null;
 
 /* ---------------- auth (Supabase) ---------------- */
 var supabaseClient = null;
@@ -1258,6 +1299,181 @@ function renderAuthScreen(){
   }
 }
 
+/* ---------------- cat companion (CSS/SVG mascot) ---------------- */
+var CAT_MESSAGES = {
+  fr: {
+    idle: ["Prêt à apprendre un peu de français aujourd'hui ?", "Un petit quiz te dit ?", "Miaou ! Je suis là si tu as besoin d'un coup de patte."],
+    happy: ["Bravo, continue comme ça !", "Ta série est en feu ! 🔥", "Je suis fier de toi !"],
+    excited: ["INCROYABLE ! Quel score !", "Wouah, tu déchires !", "On célèbre ça ! 🎉"],
+    sad: ["Pas grave, on retente demain.", "Chaque erreur est une leçon.", "Je crois en toi, allez !"],
+    sleepy: ["Il est tard... on continue demain ?", "Zzz... pense à te reposer aussi."]
+  },
+  en: {
+    idle: ["Ready to learn some French today?", "Fancy a quick quiz?", "Meow! I'm here if you need a paw."],
+    happy: ["Nice work, keep it up!", "Your streak is on fire! 🔥", "I'm proud of you!"],
+    excited: ["AMAZING! What a score!", "Wow, you're crushing it!", "Let's celebrate! 🎉"],
+    sad: ["No worries, try again tomorrow.", "Every mistake is a lesson.", "I believe in you, let's go!"],
+    sleepy: ["It's getting late... continue tomorrow?", "Zzz... remember to rest too."]
+  }
+};
+function pickCatMessage(mood, lang){
+  var pool = (CAT_MESSAGES[lang]||CAT_MESSAGES.fr)[mood] || (CAT_MESSAGES[lang]||CAT_MESSAGES.fr).idle;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+function computeIdleCatMood(state){
+  var todayIdx = currentDayIndex(state);
+  if(todayIdx >= 2 && todayIdx <= TOTAL_DAYS+1){
+    if(dayStatus(state, todayIdx-1, todayIdx) === 'missed') return 'sad';
+  }
+  var hour = new Date().getHours();
+  if(hour >= 23 || hour < 5) return 'sleepy';
+  if(computeStreak(state) >= 3) return 'happy';
+  return 'idle';
+}
+/* sets a temporary mood (e.g. reacting to a quiz result), then fades back to the
+   ambient idle mood computed from streak/day status after `ms` milliseconds */
+function pulseCatMood(mood, ms){
+  clearTimeout(catMoodTimer);
+  uiCatMood = mood;
+  catMoodTimer = setTimeout(function(){ uiCatMood = computeIdleCatMood(STATE); render(); }, ms || 4500);
+}
+function renderCatSVG(mood){
+  var eyes, mouth, extra = '';
+  switch(mood){
+    case 'happy':
+      eyes = '<path d="M28 46 Q34 38 40 46" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/><path d="M60 46 Q66 38 72 46" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>';
+      mouth = '<path d="M40 58 Q50 68 60 58" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>';
+      extra = '<circle cx="24" cy="55" r="5" fill="var(--accent-pink)" opacity="0.55"/><circle cx="76" cy="55" r="5" fill="var(--accent-pink)" opacity="0.55"/>';
+      break;
+    case 'excited':
+      eyes = '<path d="M27 40 L34 47 M34 40 L27 47" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/><path d="M66 40 L73 47 M73 40 L66 47" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>';
+      mouth = '<ellipse cx="50" cy="60" rx="9" ry="7" fill="var(--ink)"/>';
+      extra = '<path d="M15 20 L18 26 M85 20 L82 26 M50 8 L50 15" stroke="var(--accent-amber)" stroke-width="3" stroke-linecap="round"/>';
+      break;
+    case 'sad':
+      eyes = '<path d="M28 44 Q34 50 40 44" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/><path d="M60 44 Q66 50 72 44" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>';
+      mouth = '<path d="M40 62 Q50 54 60 62" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>';
+      extra = '<path d="M32 60 L30 68 M68 60 L70 68" stroke="var(--accent-blue)" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>';
+      break;
+    case 'sleepy':
+      eyes = '<path d="M27 45 L41 45" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/><path d="M59 45 L73 45" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>';
+      mouth = '<path d="M45 58 Q50 62 55 58" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>';
+      extra = '<text x="70" y="26" font-size="13" fill="var(--ink-faint)" font-family="Nunito, sans-serif" font-weight="800">z</text><text x="79" y="18" font-size="9" fill="var(--ink-faint)" font-family="Nunito, sans-serif" font-weight="800">z</text>';
+      break;
+    default: // idle
+      eyes = '<circle cx="34" cy="45" r="4.5" fill="var(--ink)" class="cat-blink"/><circle cx="66" cy="45" r="4.5" fill="var(--ink)" class="cat-blink"/>';
+      mouth = '<path d="M42 58 Q50 64 58 58" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>';
+  }
+  return ''
+  +'<svg viewBox="0 0 100 100" class="cat-svg cat-mood-'+mood+'" aria-hidden="true">'
+    +'<path d="M20 30 L28 8 L38 26 Z" fill="var(--accent-pink-soft)" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"/>'
+    +'<path d="M80 30 L72 8 L62 26 Z" fill="var(--accent-pink-soft)" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"/>'
+    +'<circle cx="50" cy="52" r="38" fill="var(--surface)" stroke="var(--ink)" stroke-width="2.5"/>'
+    +eyes + mouth + extra
+  +'</svg>';
+}
+function renderCatCompanion(){
+  var lang = STATE.lang || 'fr';
+  var t = T(lang);
+  return ''
+  +'<div class="cat-companion">'
+    +(uiCatBubbleOpen ? '<div class="cat-bubble">'+esc(uiCatBubbleMsg)+'</div>' : '')
+    +'<button type="button" class="cat-avatar" data-action="cat-tap" aria-label="'+esc(t.catAria)+'">'+renderCatSVG(uiCatMood)+'</button>'
+  +'</div>';
+}
+
+/* ---------------- top bar (profile / logout / settings) ---------------- */
+function renderTopBar(){
+  var lang = STATE.lang || 'fr';
+  var t = T(lang);
+  var email = uiAuthUser ? uiAuthUser.email : '';
+  var initial = email ? email.charAt(0).toUpperCase() : '?';
+  var locked = isStartDateLocked(STATE);
+  return ''
+  +'<header class="top-bar">'
+    +'<div class="top-brand">🥐 <span>'+esc(t.heroSub)+'</span></div>'
+    +'<div class="top-profile">'
+      +'<button type="button" class="profile-avatar" data-action="toggle-profile-menu" aria-label="'+esc(t.auth.profileMenuAria)+'">'+esc(initial)+'</button>'
+      +(uiProfileMenuOpen ? (''
+        +'<div class="profile-menu">'
+          +'<div class="profile-email">'+esc(email)+'</div>'
+          +'<button type="button" class="profile-menu-item" data-action="restart-tour">🐱 '+esc(t.auth.replayTour)+'</button>'
+          +'<button type="button" class="profile-menu-item"'+(locked?' disabled':'')+' data-action="open-day1-modal">📅 '+esc(t.auth.changeDay1)+'</button>'
+          +'<button type="button" class="profile-menu-item danger" data-action="auth-logout">🚪 '+esc(t.auth.logout)+'</button>'
+        +'</div>'
+      ) : '')
+    +'</div>'
+  +'</header>';
+}
+
+/* ---------------- Day 1 picker modal ---------------- */
+function renderDay1Modal(){
+  var lang = STATE.lang || 'fr';
+  var t = T(lang);
+  var today = new Date();
+  var iso = today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  var val = STATE.startDate || iso;
+  return ''
+  +'<div class="overlay day1-overlay">'
+    +'<div class="panel day1-modal" role="dialog" aria-modal="true" aria-label="'+esc(t.auth.day1Title)+'">'
+      +'<div class="day1-icon">📅</div>'
+      +'<h3>'+esc(t.auth.day1Title)+'</h3>'
+      +'<p class="auth-hint">'+esc(t.auth.day1Hint)+'</p>'
+      +'<input type="date" id="day1-input" class="auth-input" value="'+esc(val)+'">'
+      +'<button type="button" class="fc-btn primary auth-submit" data-action="confirm-day1">'+esc(t.auth.day1Confirm)+'</button>'
+    +'</div>'
+  +'</div>';
+}
+
+/* ---------------- guided tour ---------------- */
+var TOUR_STEPS = [
+  { target: '[data-tour="calendar"]', key: 'calendar' },
+  { target: '[data-tab="test"]', key: 'test' },
+  { target: '[data-tab="results"]', key: 'results' },
+  { target: '.profile-avatar', key: 'profile' },
+  { target: '.cat-avatar', key: 'cat' }
+];
+function startTour(){ uiActiveTab = 'plan'; uiTourStep = 0; render(); } // step 1 targets the calendar, which only exists on the Plan tab
+function renderTourOverlay(){
+  if(uiTourStep === null) return '';
+  var lang = STATE.lang || 'fr';
+  var t = T(lang).tour;
+  var step = TOUR_STEPS[uiTourStep];
+  var isLast = uiTourStep === TOUR_STEPS.length - 1;
+  return ''
+  +'<div class="tour-layer">'
+    +'<div class="tour-backdrop" id="tour-backdrop"></div>'
+    +'<div class="tour-tooltip" id="tour-tooltip">'
+      +'<div class="tour-cat">'+renderCatSVG('excited')+'</div>'
+      +'<div class="tour-msg">'+esc(t[step.key])+'</div>'
+      +'<div class="tour-actions">'
+        +'<button type="button" class="auth-link" data-action="tour-skip">'+esc(t.skip)+'</button>'
+        +'<button type="button" class="fc-btn primary" data-action="tour-next">'+esc(isLast ? t.done : t.next)+'</button>'
+      +'</div>'
+    +'</div>'
+  +'</div>';
+}
+function positionTour(){
+  if(uiTourStep === null) return;
+  var step = TOUR_STEPS[uiTourStep];
+  var target = document.querySelector(step.target);
+  var backdrop = document.getElementById('tour-backdrop');
+  var tooltip = document.getElementById('tour-tooltip');
+  if(!target || !backdrop || !tooltip) return;
+  var r = target.getBoundingClientRect();
+  var pad = 8;
+  backdrop.style.setProperty('--sx', (r.left-pad)+'px');
+  backdrop.style.setProperty('--sy', (r.top-pad)+'px');
+  backdrop.style.setProperty('--sw', (r.width+pad*2)+'px');
+  backdrop.style.setProperty('--sh', (r.height+pad*2)+'px');
+  var spaceBelow = window.innerHeight - r.bottom;
+  var placeAbove = spaceBelow < 190 && r.top > 190;
+  if(placeAbove){ tooltip.style.top = (r.top - 12) + 'px'; tooltip.style.transform = 'translate(-50%, -100%)'; }
+  else { tooltip.style.top = (r.bottom + 12) + 'px'; tooltip.style.transform = 'translate(-50%, 0)'; }
+  var left = Math.max(160, Math.min(window.innerWidth-160, r.left + r.width/2));
+  tooltip.style.left = left + 'px';
+}
+
 function renderHero(state){
   var lang = state.lang || 'fr';
   var t = T(lang);
@@ -1298,7 +1514,6 @@ function renderHero(state){
       +'<div class="stat"><div class="k">'+esc(t.statProgress)+'</div><div class="v tabular">'+pct+'<small>%</small></div></div>'
     +'</div>'
     +'<div class="callout"><span class="ic">💡</span><span>'+esc(t.reality)+'</span></div>'
-    +(uiAuthUser ? '<div class="account-row"><span class="account-email">'+esc(t.auth.signedInAs)+' '+esc(uiAuthUser.email)+'</span><button type="button" class="account-logout" data-action="auth-logout">'+esc(t.auth.logout)+'</button></div>' : '')
   +'</section>';
 }
 
@@ -1343,7 +1558,7 @@ function renderCalendar(state){
     rowsHtml += '<div class="cal-week">' + flat.slice(r, r+7).join('') + '</div>';
   }
   return ''
-  +'<div class="section">'
+  +'<div class="section" data-tour="calendar">'
     +'<div class="section-head"><h2>'+esc(t.calTitle)+'</h2><span class="hint">'+esc(t.calHint)+'</span></div>'
     +'<div class="cal-scroll"><div class="cal">'
       +'<div class="cal-weekdays">'+t.weekdays.map(function(h){return '<span>'+esc(h)+'</span>';}).join('')+'</div>'
@@ -1580,8 +1795,10 @@ function renderBottomNav(activeTab, lang){
   return ''
   +'<nav class="bottom-nav" role="navigation" aria-label="'+esc(t.navAria)+'">'
     +NAV_TABS.map(function(tb){
-      return '<button type="button" class="nav-btn'+(activeTab===tb.id?' active':'')+'" data-action="set-tab" data-tab="'+tb.id+'">'
-        +'<span class="nav-ic">'+tb.ic+'</span><span class="nav-lbl">'+esc(t.navLabels[tb.id])+'</span>'
+      var isRaised = tb.id === 'test';
+      var iconHtml = isRaised ? '<span class="nav-ic-wrap"><span class="nav-ic">'+tb.ic+'</span></span>' : '<span class="nav-ic">'+tb.ic+'</span>';
+      return '<button type="button" class="nav-btn'+(isRaised?' nav-btn-raised':'')+(activeTab===tb.id?' active':'')+'" data-action="set-tab" data-tab="'+tb.id+'">'
+        +iconHtml+'<span class="nav-lbl">'+esc(t.navLabels[tb.id])+'</span>'
       +'</button>';
     }).join('')
   +'</nav>';
@@ -1596,7 +1813,14 @@ function bodyContentHTML(state, openDay){
   else if(tab==='results') main = renderResults(state);
   else if(tab==='tcf') main = renderTcfCalculator(state);
   else if(tab==='notebook') main = renderNotebook(state);
-  return main + (openDay ? renderPanel(state, openDay) : '') + renderBottomNav(tab, lang) + '<div class="save-flag" id="save-flag">'+esc(t.savedFlag)+'</div>';
+  return renderTopBar()
+    + main
+    + (openDay ? renderPanel(state, openDay) : '')
+    + (uiShowDay1Modal ? renderDay1Modal() : '')
+    + renderCatCompanion()
+    + renderBottomNav(tab, lang)
+    + renderTourOverlay()
+    + '<div class="save-flag" id="save-flag">'+esc(t.savedFlag)+'</div>';
 }
 
 /* ---------------- persistence (Supabase, per signed-in user) ---------------- */
@@ -1638,7 +1862,10 @@ async function enterApp(user){
   uiAuthError = '';
   uiAuthBusy = false;
   uiAuthView = 'app';
+  uiCatMood = computeIdleCatMood(STATE);
+  uiShowDay1Modal = !STATE.startDateChangedOnce;
   render();
+  if(!uiShowDay1Modal && !STATE.onboardingSeen) startTour();
 }
 async function initAuthFlow(){
   render(); // paints the splash screen immediately
@@ -1663,7 +1890,11 @@ async function initAuthFlow(){
   supabaseClient.auth.onAuthStateChange(function(event, session){
     if(event === 'PASSWORD_RECOVERY'){ uiAuthView = 'reset-password'; render(); return; }
     if(event === 'SIGNED_IN' && session && session.user && uiAuthView !== 'app'){ enterApp(session.user); }
-    if(event === 'SIGNED_OUT'){ uiAuthUser = null; STATE = defaultState(); uiAuthView = 'login'; render(); }
+    if(event === 'SIGNED_OUT'){
+      uiAuthUser = null; STATE = defaultState(); uiAuthView = 'login';
+      uiShowDay1Modal = false; uiProfileMenuOpen = false; uiTourStep = null; uiCatMood = 'idle'; uiCatBubbleOpen = false;
+      render();
+    }
   });
 }
 async function doLogin(){
@@ -1761,12 +1992,43 @@ function render(){
   document.documentElement.setAttribute('lang', STATE.lang || 'fr');
   var root = document.getElementById('root');
   root.innerHTML = uiAuthView !== 'app' ? renderAuthScreen() : bodyContentHTML(STATE, uiOpenDay);
+  if(uiAuthView === 'app' && uiTourStep !== null) positionTour();
 }
 
 function onRootClick(e){
+  if(uiProfileMenuOpen && !e.target.closest('[data-action="toggle-profile-menu"]') && !e.target.closest('.profile-menu')){
+    uiProfileMenuOpen = false; render();
+    return;
+  }
   var t = e.target.closest('[data-action]');
   if(!t) return;
   var action = t.getAttribute('data-action');
+  if(action==='toggle-profile-menu'){ uiProfileMenuOpen = !uiProfileMenuOpen; render(); return; }
+  if(action==='restart-tour'){ uiProfileMenuOpen = false; startTour(); return; }
+  if(action==='open-day1-modal'){ uiProfileMenuOpen = false; uiShowDay1Modal = true; render(); return; }
+  if(action==='confirm-day1'){
+    var day1Val = (document.getElementById('day1-input')||{}).value;
+    if(day1Val){
+      STATE.startDate = day1Val;
+      STATE.startDateChangedOnce = true;
+      uiShowDay1Modal = false;
+      scheduleSave();
+      if(!STATE.onboardingSeen) startTour(); else render();
+    }
+    return;
+  }
+  if(action==='cat-tap'){
+    uiCatBubbleOpen = !uiCatBubbleOpen;
+    if(uiCatBubbleOpen){ uiCatBubbleMsg = pickCatMessage(uiCatMood, STATE.lang||'fr'); playTone(880,0.05,{type:'sine',volume:0.06}); }
+    render();
+    return;
+  }
+  if(action==='tour-next' || action==='tour-skip'){
+    if(action==='tour-next' && uiTourStep < TOUR_STEPS.length-1){ uiTourStep++; }
+    else { uiTourStep = null; STATE.onboardingSeen = true; scheduleSave(); }
+    render();
+    return;
+  }
   if(action==='auth-goto'){ uiAuthView = t.getAttribute('data-view'); uiAuthError = ''; render(); return; }
   if(action==='auth-login'){ doLogin(); return; }
   if(action==='auth-signup'){ doSignup(); return; }
@@ -1791,6 +2053,7 @@ function onRootClick(e){
   }
   if(action==='set-tab'){
     var newTab = t.getAttribute('data-tab');
+    uiProfileMenuOpen = false;
     if(newTab !== uiActiveTab){ uiActiveTab = newTab; playClickSound(); render(); }
     return;
   }
@@ -1862,6 +2125,8 @@ function onRootClick(e){
         STATE.quizHistory.push({ deck: uiDeckKey, pct: pct, score: uiQuiz.score, total: uiQuiz.questions.length, date: new Date().toISOString() });
         playFanfareSound();
         if(pct >= CONFETTI_THRESHOLD) burstConfetti();
+        var tier = quizTier(pct);
+        pulseCatMood(tier==='great'||tier==='good' ? 'excited' : (tier==='low' ? 'sad' : 'happy'), 5000);
         scheduleSave();
       }
       render();
