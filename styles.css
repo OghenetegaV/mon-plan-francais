@@ -196,7 +196,7 @@ button{ font-family:inherit; }
 .chip .dot{ width:8px; height:8px; border-radius:50%; background:currentColor; }
 
 /* ---------- calendar ---------- */
-.cal-scroll{ overflow-x:auto; padding-bottom:4px; }
+.cal-scroll{ overflow-x:auto; padding:8px 4px 4px; }
 .cal{ min-width:490px; }
 .cal-weekdays{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:6px; }
 .cal-weekdays span{ text-align:center; font-size:0.68rem; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; color:var(--ink-faint); }
@@ -218,6 +218,21 @@ button{ font-family:inherit; }
 .day.p3{ border-left:4px solid var(--phase3); }
 .day.p4{ border-left:4px solid var(--phase4); }
 .day .ring{ align-self:flex-end; width:16px; height:16px; border-radius:50%; }
+.day-badge{
+  position:absolute; top:-7px; right:-7px; width:19px; height:19px; border-radius:50%;
+  background:var(--surface); border:1.5px solid var(--border); box-shadow:var(--shadow-sm);
+  font-size:0.72rem; line-height:1; display:flex; align-items:center; justify-content:center; z-index:1;
+}
+.day.almost{ background:var(--accent-amber-soft); }
+.day.almost .num{ color:var(--accent-amber); }
+.day.almost .day-badge{ border-color:var(--accent-amber); }
+.day.missed{ opacity:0.82; }
+.day.missed .num, .day.missed .frac{ text-decoration:line-through; text-decoration-color:var(--accent-pink); text-decoration-thickness:1.5px; }
+.day.missed .day-badge{ border-color:var(--accent-pink); }
+.day.missed::after{
+  content:""; position:absolute; left:10%; right:10%; top:50%; height:0;
+  border-top:1.5px solid var(--accent-pink); opacity:0.6; transform:rotate(-8deg); pointer-events:none;
+}
 @media (max-width:560px){
   .cal{ min-width:0; }
   .cal-weekdays, .cal-week{ gap:4px; }
@@ -225,6 +240,7 @@ button{ font-family:inherit; }
   .day{ padding:4px 3px 3px; border-radius:8px; }
   .day .num{ font-size:0.78rem; }
   .day .frac{ font-size:0.56rem; }
+  .day-badge{ width:15px; height:15px; font-size:0.58rem; top:-5px; right:-5px; }
 }
 
 /* ---------- panel ---------- */
@@ -295,8 +311,9 @@ button{ font-family:inherit; }
 .fc-empty{ text-align:center; padding:34px 16px; color:var(--ink-faint); font-size:0.9rem; }
 .fc-wrap{ display:flex; flex-direction:column; align-items:center; gap:14px; margin-top:18px; }
 .fc-counter{ font-size:0.8rem; font-weight:800; color:var(--ink-faint); }
-.flashcard{ width:100%; max-width:420px; aspect-ratio:16/10; perspective:1200px; cursor:pointer; }
-.flashcard-inner{ position:relative; width:100%; height:100%; transition:transform .5s cubic-bezier(.4,.2,.2,1); transform-style:preserve-3d; }
+.flashcard{ width:100%; max-width:420px; aspect-ratio:16/10; perspective:1600px; cursor:pointer; transition:transform .35s ease; }
+.flashcard.flipped{ transform:scale(1.02); }
+.flashcard-inner{ position:relative; width:100%; height:100%; transition:transform .65s cubic-bezier(.34,1.56,.64,1); transform-style:preserve-3d; }
 .flashcard.flipped .flashcard-inner{ transform:rotateY(180deg); }
 .flashcard-face{ position:absolute; inset:0; -webkit-backface-visibility:hidden; backface-visibility:hidden; border-radius:var(--radius-lg); border:1px solid var(--border); box-shadow:var(--shadow); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:22px; gap:10px; }
 .flashcard-face.front{ background:linear-gradient(155deg, var(--surface), var(--surface-soft)); }

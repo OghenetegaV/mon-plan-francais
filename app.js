@@ -680,6 +680,49 @@ function speak(text, langCode){
     window.speechSynthesis.speak(u);
   }catch(e){}
 }
+
+/* ---------------- interactive UI sound effects (Web Audio, no assets needed) ---------------- */
+var audioCtx = null;
+function getAudioCtx(){
+  if(!audioCtx){
+    try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ audioCtx = null; }
+  }
+  return audioCtx;
+}
+function playTone(freq, duration, opts){
+  try{
+    var ctx = getAudioCtx();
+    if(!ctx) return;
+    if(ctx.state === 'suspended') ctx.resume();
+    opts = opts || {};
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.type = opts.type || 'sine';
+    osc.frequency.value = freq;
+    var vol = opts.volume!=null ? opts.volume : 0.15;
+    var now = ctx.currentTime;
+    var start = now + (opts.delay||0);
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.linearRampToValueAtTime(vol, start + 0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(start);
+    osc.stop(start + duration + 0.03);
+  }catch(e){}
+}
+function playFlipSound(){ playTone(700, 0.09, {type:'triangle', volume:0.09}); }
+function playClickSound(){ playTone(520, 0.05, {type:'square', volume:0.05}); }
+function playCorrectSound(){
+  playTone(523.25, 0.14, {type:'sine', volume:0.16});
+  playTone(783.99, 0.2, {type:'sine', volume:0.16, delay:0.1});
+}
+function playWrongSound(){ playTone(180, 0.32, {type:'sawtooth', volume:0.11}); }
+function playFanfareSound(){
+  playTone(523.25, 0.16, {type:'sine', volume:0.15});
+  playTone(659.25, 0.16, {type:'sine', volume:0.15, delay:0.13});
+  playTone(783.99, 0.28, {type:'sine', volume:0.16, delay:0.26});
+}
+
 function buildQuiz(deck, count){
   var pool = shuffleArr(deck.cards);
   var chosen = pool.slice(0, Math.min(count, pool.length));
@@ -708,10 +751,24 @@ function dayFraction(state, day){
   var n = 0; blocks.forEach(function(b){ if(done.indexOf(b.id)!==-1) n++; });
   return n + "/" + blocks.length;
 }
+function dayCompletionRatio(state, day){
+  var wd = dateForDay(state.startDate, day).getDay();
+  var blocks = blocksForWeekday(wd);
+  var done = state.tasks[day] || [];
+  var n = 0; blocks.forEach(function(b){ if(done.indexOf(b.id)!==-1) n++; });
+  return blocks.length ? n/blocks.length : 0;
+}
 function currentDayIndex(state){
   var d = diffDaysFrom(state.startDate, new Date()) + 1;
   return d;
 }
+/* good = fully checked off; almost = past day, at least half done; missed = past day, mostly skipped */
+function dayStatus(state, day, todayIdx){
+  if(isDayDone(state, day)) return 'good';
+  if(day < todayIdx) return dayCompletionRatio(state, day) >= 0.5 ? 'almost' : 'missed';
+  return null;
+}
+var DAY_STATUS_BADGE = { good:'🎉', almost:'😅', missed:'😢' };
 function computeStreak(state){
   var idx = currentDayIndex(state);
   var start = Math.min(idx, TOTAL_DAYS);
@@ -986,8 +1043,11 @@ function renderCalendar(state){
     var ph = phaseOf(day, lang);
     var done = isDayDone(state, day);
     var isToday = (day===todayIdx);
-    var cls = 'day '+ph.cls+(done?' done':'')+(isToday?' today':'');
+    var status = dayStatus(state, day, todayIdx);
+    var badge = status ? DAY_STATUS_BADGE[status] : '';
+    var cls = 'day '+ph.cls+(done?' done':'')+(status?' '+status:'')+(isToday?' today':'');
     flat.push('<button type="button" class="'+cls+'" data-action="open-day" data-day="'+day+'">'
+      +(badge?'<span class="day-badge" aria-hidden="true">'+badge+'</span>':'')
       +'<span class="num tabular">'+day+'</span>'
       +'<span class="frac tabular">'+esc(dayFraction(state,day))+'</span>'
       +'</button>');
@@ -1250,13 +1310,18 @@ function onRootClick(e){
     uiCardOrder = []; uiCardIndex = 0; uiCardFlipped = false; uiQuiz = null;
     render();
   }
-  else if(action==='flip-card'){ uiCardFlipped = !uiCardFlipped; render(); }
+  else if(action==='flip-card'){
+    uiCardFlipped = !uiCardFlipped;
+    playFlipSound();
+    t.classList.toggle('flipped', uiCardFlipped); // toggle in place so the CSS 3D transition actually plays
+  }
   else if(action==='card-prev' || action==='card-next'){
     var deck0 = findDeck(uiDeckKey);
     if(deck0){
       var len0 = deck0.cards.length;
       uiCardIndex = action==='card-prev' ? (uiCardIndex - 1 + len0) % len0 : (uiCardIndex + 1) % len0;
       uiCardFlipped = false;
+      playClickSound();
       render();
     }
   }
@@ -1265,6 +1330,7 @@ function onRootClick(e){
     if(deck1){
       uiCardOrder = shuffleArr(deck1.cards.map(function(_,i){ return i; }));
       uiCardIndex = 0; uiCardFlipped = false;
+      playClickSound();
       render();
     }
   }
@@ -1280,7 +1346,7 @@ function onRootClick(e){
       var choice = t.getAttribute('data-choice');
       uiQuiz.answered = true;
       uiQuiz.selected = choice;
-      if(choice === uiQuiz.questions[uiQuiz.idx].correct) uiQuiz.score++;
+      if(choice === uiQuiz.questions[uiQuiz.idx].correct){ uiQuiz.score++; playCorrectSound(); } else { playWrongSound(); }
       render();
     }
   }
@@ -1288,11 +1354,13 @@ function onRootClick(e){
     if(uiQuiz){
       if(uiQuiz.idx < uiQuiz.questions.length - 1){
         uiQuiz.idx++; uiQuiz.answered = false; uiQuiz.selected = null;
+        playClickSound();
       } else {
         uiQuiz.finished = true;
         var pct = Math.round(uiQuiz.score / uiQuiz.questions.length * 100);
         var prev = STATE.quizScores[uiDeckKey] || { best:0, attempts:0 };
         STATE.quizScores[uiDeckKey] = { best: Math.max(prev.best||0, pct), attempts: (prev.attempts||0)+1 };
+        playFanfareSound();
         scheduleSave();
       }
       render();
