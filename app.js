@@ -1,14 +1,5 @@
 /* ============ Mon Plan Français — 90-day NCLC 9 planner (bilingual FR/EN) ============ */
 
-var HEAD_HTML = [
-  '<meta charset="UTF-8">',
-  '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
-  '<title>Mon Plan Français</title>',
-  '<link rel="preconnect" href="https://fonts.googleapis.com">',
-  '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Nunito:wght@400;600;700;800&family=Caveat:wght@600;700&display=swap">',
-  '<link rel="stylesheet" href="styles.css">'
-].join('\n');
-
 var TOTAL_DAYS = 90;
 
 /* ---------------- bilingual content pools (index-aligned) ---------------- */
@@ -319,6 +310,47 @@ var DICT = {
     connectorsDeckName: "Connecteurs logiques",
     navLabels: { plan:"Plan", test:"Test", results:"Résultats", tcf:"TCF", notebook:"Carnet" },
     navAria: "Navigation principale",
+    auth: {
+      splashLoading: "Chargement de votre plan…",
+      loginTitle: "Connexion",
+      loginHint: "Retrouvez votre plan sur n'importe quel appareil",
+      emailLabel: "Adresse e-mail",
+      passwordLabel: "Mot de passe",
+      loginButton: "Se connecter",
+      loggingIn: "Connexion…",
+      noAccount: "Pas encore de compte ?",
+      signupLink: "Créer un compte",
+      forgotLink: "Mot de passe oublié ?",
+      signupTitle: "Créer un compte",
+      signupHint: "Votre progression sera liée à cette adresse e-mail",
+      confirmPasswordLabel: "Confirmer le mot de passe",
+      signupButton: "Créer mon compte",
+      signingUp: "Création…",
+      haveAccount: "Déjà un compte ?",
+      loginLink: "Se connecter",
+      passwordMismatch: "Les mots de passe ne correspondent pas.",
+      passwordTooShort: "Le mot de passe doit contenir au moins 6 caractères.",
+      forgotTitle: "Mot de passe oublié",
+      forgotHint: "On vous envoie un lien pour le réinitialiser",
+      forgotButton: "Envoyer le lien",
+      sending: "Envoi…",
+      backToLogin: "← Retour à la connexion",
+      forgotSentTitle: "E-mail envoyé ✓",
+      forgotSentMsg: "Vérifiez votre boîte de réception pour réinitialiser votre mot de passe.",
+      checkEmailTitle: "Vérifiez votre boîte mail",
+      checkEmailMsg: "Nous avons envoyé un lien de confirmation à {email}. Cliquez dessus pour activer votre compte.",
+      backToLoginButton: "Retour à la connexion",
+      resetTitle: "Nouveau mot de passe",
+      resetHint: "Choisissez un nouveau mot de passe pour votre compte",
+      newPasswordLabel: "Nouveau mot de passe",
+      resetButton: "Mettre à jour le mot de passe",
+      updating: "Mise à jour…",
+      signedInAs: "Connecté(e) en tant que",
+      logout: "Se déconnecter",
+      configErrorTitle: "Configuration manquante",
+      configErrorMsg: "Ce site n'est pas encore connecté à une base de données. Renseignez SUPABASE_URL et SUPABASE_ANON_KEY dans supabase-config.js.",
+      genericError: "Une erreur est survenue. Réessayez."
+    },
     fcTitle: "Test",
     fcHint: "Révisez le vocabulaire par thème, puis testez-vous",
     fcDeckAria: "Choisir un thème",
@@ -424,6 +456,47 @@ var DICT = {
     connectorsDeckName: "Logical connectors",
     navLabels: { plan:"Plan", test:"Test", results:"Results", tcf:"TCF", notebook:"Notebook" },
     navAria: "Main navigation",
+    auth: {
+      splashLoading: "Loading your plan…",
+      loginTitle: "Log in",
+      loginHint: "Pick up your plan on any device",
+      emailLabel: "Email address",
+      passwordLabel: "Password",
+      loginButton: "Log in",
+      loggingIn: "Logging in…",
+      noAccount: "Don't have an account?",
+      signupLink: "Create one",
+      forgotLink: "Forgot your password?",
+      signupTitle: "Create an account",
+      signupHint: "Your progress will be tied to this email address",
+      confirmPasswordLabel: "Confirm password",
+      signupButton: "Create account",
+      signingUp: "Creating…",
+      haveAccount: "Already have an account?",
+      loginLink: "Log in",
+      passwordMismatch: "Passwords don't match.",
+      passwordTooShort: "Password must be at least 6 characters.",
+      forgotTitle: "Forgot password",
+      forgotHint: "We'll email you a link to reset it",
+      forgotButton: "Send reset link",
+      sending: "Sending…",
+      backToLogin: "← Back to login",
+      forgotSentTitle: "Email sent ✓",
+      forgotSentMsg: "Check your inbox for a link to reset your password.",
+      checkEmailTitle: "Check your email",
+      checkEmailMsg: "We sent a confirmation link to {email}. Click it to activate your account.",
+      backToLoginButton: "Back to login",
+      resetTitle: "New password",
+      resetHint: "Choose a new password for your account",
+      newPasswordLabel: "New password",
+      resetButton: "Update password",
+      updating: "Updating…",
+      signedInAs: "Signed in as",
+      logout: "Log out",
+      configErrorTitle: "Missing configuration",
+      configErrorMsg: "This site isn't connected to a database yet. Fill in SUPABASE_URL and SUPABASE_ANON_KEY in supabase-config.js.",
+      genericError: "Something went wrong. Please try again."
+    },
     fcTitle: "Test",
     fcHint: "Review vocabulary by theme, then test yourself",
     fcDeckAria: "Choose a theme",
@@ -615,28 +688,36 @@ function blocksForWeekday(weekdayJs){ return weekdayJs===0 ? BLOCKS_SUNDAY : BLO
 function defaultState(){
   return { startDate: "2026-09-12", startDateChangedOnce: false, examTarget: "TEF", lang: "fr", tasks: {}, notes: { listening:"", reading:"", speaking:"", writing:"" }, quizScores: {}, quizHistory: [], tcfScores: { listening:null, reading:null, speaking:null, writing:null } };
 }
-function loadInitialState(){
-  try{
-    var el = document.getElementById('state-json');
-    if(el && el.textContent.trim()){
-      var parsed = JSON.parse(el.textContent);
-      var d = defaultState();
-      return Object.assign(d, parsed, {
-        notes: Object.assign(d.notes, parsed.notes||{}),
-        quizScores: Object.assign(d.quizScores, parsed.quizScores||{}),
-        quizHistory: parsed.quizHistory || d.quizHistory,
-        tcfScores: Object.assign(d.tcfScores, parsed.tcfScores||{})
-      });
-    }
-  }catch(e){}
-  return defaultState();
+/* merges a raw state blob (as loaded from Supabase) over the defaults, so any field
+   added to the app after a user's row was first created still gets a sane fallback */
+function mergeState(parsed){
+  parsed = parsed || {};
+  var d = defaultState();
+  return Object.assign(d, parsed, {
+    notes: Object.assign(d.notes, parsed.notes||{}),
+    quizScores: Object.assign(d.quizScores, parsed.quizScores||{}),
+    quizHistory: parsed.quizHistory || d.quizHistory,
+    tcfScores: Object.assign(d.tcfScores, parsed.tcfScores||{})
+  });
 }
 
-var STATE = loadInitialState();
+var STATE = defaultState();
 var uiOpenDay = null;
 var uiActiveTab = 'plan';
-var artifactApi = null;
 var saveTimer = null;
+
+/* ---------------- auth (Supabase) ---------------- */
+var supabaseClient = null;
+try{
+  if(window.supabase && typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL.indexOf('YOUR-PROJECT') === -1){
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+}catch(e){ supabaseClient = null; }
+var uiAuthView = 'splash'; // splash | config-error | login | signup | check-email | forgot | forgot-sent | reset-password | app
+var uiAuthUser = null;     // { id, email }
+var uiAuthError = '';
+var uiAuthBusy = false;
+var uiAuthForm = { email: '' }; // remembered across error re-renders; password is never stored, only read at submit time
 
 /* ephemeral flashcard/quiz UI state — not persisted, resets on reload */
 var uiDeckKey = null;
@@ -1048,6 +1129,124 @@ function updateTcfUI(){
 /* ---------------- render: body content ---------------- */
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
+/* ---------------- splash + auth screens ---------------- */
+function preAuthLang(){
+  try{ return (navigator.language||'fr').toLowerCase().indexOf('fr')===0 ? 'fr' : 'en'; }catch(e){ return 'fr'; }
+}
+function renderSplash(){
+  var t = T(preAuthLang()).auth;
+  return ''
+  +'<div class="splash-screen">'
+    +'<div class="splash-logo">🥐</div>'
+    +'<h1 class="splash-title">Tia\'s French Plan</h1>'
+    +'<div class="splash-spinner" aria-hidden="true"></div>'
+    +'<div class="splash-loading">'+esc(t.splashLoading)+'</div>'
+  +'</div>';
+}
+function renderAuthCard(inner){
+  return '<div class="auth-screen"><div class="auth-card">'+inner+'</div></div>';
+}
+function renderAuthError(){
+  return uiAuthError ? '<div class="auth-error">'+esc(uiAuthError)+'</div>' : '';
+}
+function renderLogin(){
+  var t = T(preAuthLang()).auth;
+  return renderAuthCard(''
+    +'<div class="auth-logo">🥐</div>'
+    +'<h2>'+esc(t.loginTitle)+'</h2>'
+    +'<p class="auth-hint">'+esc(t.loginHint)+'</p>'
+    +renderAuthError()
+    +'<label class="auth-label" for="auth-email">'+esc(t.emailLabel)+'</label>'
+    +'<input type="email" class="auth-input" id="auth-email" autocomplete="email" value="'+esc(uiAuthForm.email)+'">'
+    +'<label class="auth-label" for="auth-password">'+esc(t.passwordLabel)+'</label>'
+    +'<input type="password" class="auth-input" id="auth-password" autocomplete="current-password">'
+    +'<button type="button" class="fc-btn primary auth-submit" data-action="auth-login"'+(uiAuthBusy?' disabled':'')+'>'+esc(uiAuthBusy ? t.loggingIn : t.loginButton)+'</button>'
+    +'<div class="auth-links"><button type="button" class="auth-link" data-action="auth-goto" data-view="forgot">'+esc(t.forgotLink)+'</button></div>'
+    +'<div class="auth-switch">'+esc(t.noAccount)+' <button type="button" class="auth-link strong" data-action="auth-goto" data-view="signup">'+esc(t.signupLink)+'</button></div>'
+  );
+}
+function renderSignup(){
+  var t = T(preAuthLang()).auth;
+  return renderAuthCard(''
+    +'<div class="auth-logo">🥐</div>'
+    +'<h2>'+esc(t.signupTitle)+'</h2>'
+    +'<p class="auth-hint">'+esc(t.signupHint)+'</p>'
+    +renderAuthError()
+    +'<label class="auth-label" for="auth-email">'+esc(t.emailLabel)+'</label>'
+    +'<input type="email" class="auth-input" id="auth-email" autocomplete="email" value="'+esc(uiAuthForm.email)+'">'
+    +'<label class="auth-label" for="auth-password">'+esc(t.passwordLabel)+'</label>'
+    +'<input type="password" class="auth-input" id="auth-password" autocomplete="new-password">'
+    +'<label class="auth-label" for="auth-password-confirm">'+esc(t.confirmPasswordLabel)+'</label>'
+    +'<input type="password" class="auth-input" id="auth-password-confirm" autocomplete="new-password">'
+    +'<button type="button" class="fc-btn primary auth-submit" data-action="auth-signup"'+(uiAuthBusy?' disabled':'')+'>'+esc(uiAuthBusy ? t.signingUp : t.signupButton)+'</button>'
+    +'<div class="auth-switch">'+esc(t.haveAccount)+' <button type="button" class="auth-link strong" data-action="auth-goto" data-view="login">'+esc(t.loginLink)+'</button></div>'
+  );
+}
+function renderForgot(){
+  var t = T(preAuthLang()).auth;
+  return renderAuthCard(''
+    +'<div class="auth-logo">🥐</div>'
+    +'<h2>'+esc(t.forgotTitle)+'</h2>'
+    +'<p class="auth-hint">'+esc(t.forgotHint)+'</p>'
+    +renderAuthError()
+    +'<label class="auth-label" for="auth-email">'+esc(t.emailLabel)+'</label>'
+    +'<input type="email" class="auth-input" id="auth-email" autocomplete="email" value="'+esc(uiAuthForm.email)+'">'
+    +'<button type="button" class="fc-btn primary auth-submit" data-action="auth-forgot"'+(uiAuthBusy?' disabled':'')+'>'+esc(uiAuthBusy ? t.sending : t.forgotButton)+'</button>'
+    +'<div class="auth-switch"><button type="button" class="auth-link" data-action="auth-goto" data-view="login">'+esc(t.backToLogin)+'</button></div>'
+  );
+}
+function renderForgotSent(){
+  var t = T(preAuthLang()).auth;
+  return renderAuthCard(''
+    +'<div class="auth-logo">📬</div>'
+    +'<h2>'+esc(t.forgotSentTitle)+'</h2>'
+    +'<p class="auth-hint">'+esc(t.forgotSentMsg)+'</p>'
+    +'<button type="button" class="fc-btn primary auth-submit" data-action="auth-goto" data-view="login">'+esc(t.backToLoginButton)+'</button>'
+  );
+}
+function renderCheckEmail(){
+  var t = T(preAuthLang()).auth;
+  var msg = t.checkEmailMsg.replace('{email}', uiAuthForm.email || '');
+  return renderAuthCard(''
+    +'<div class="auth-logo">📬</div>'
+    +'<h2>'+esc(t.checkEmailTitle)+'</h2>'
+    +'<p class="auth-hint">'+esc(msg)+'</p>'
+    +'<button type="button" class="fc-btn primary auth-submit" data-action="auth-goto" data-view="login">'+esc(t.backToLoginButton)+'</button>'
+  );
+}
+function renderResetPassword(){
+  var t = T(preAuthLang()).auth;
+  return renderAuthCard(''
+    +'<div class="auth-logo">🔑</div>'
+    +'<h2>'+esc(t.resetTitle)+'</h2>'
+    +'<p class="auth-hint">'+esc(t.resetHint)+'</p>'
+    +renderAuthError()
+    +'<label class="auth-label" for="auth-new-password">'+esc(t.newPasswordLabel)+'</label>'
+    +'<input type="password" class="auth-input" id="auth-new-password" autocomplete="new-password">'
+    +'<button type="button" class="fc-btn primary auth-submit" data-action="auth-reset"'+(uiAuthBusy?' disabled':'')+'>'+esc(uiAuthBusy ? t.updating : t.resetButton)+'</button>'
+  );
+}
+function renderConfigError(){
+  var t = T(preAuthLang()).auth;
+  return renderAuthCard(''
+    +'<div class="auth-logo">⚠️</div>'
+    +'<h2>'+esc(t.configErrorTitle)+'</h2>'
+    +'<p class="auth-hint">'+esc(t.configErrorMsg)+'</p>'
+  );
+}
+function renderAuthScreen(){
+  switch(uiAuthView){
+    case 'splash': return renderSplash();
+    case 'config-error': return renderConfigError();
+    case 'signup': return renderSignup();
+    case 'check-email': return renderCheckEmail();
+    case 'forgot': return renderForgot();
+    case 'forgot-sent': return renderForgotSent();
+    case 'reset-password': return renderResetPassword();
+    default: return renderLogin();
+  }
+}
+
 function renderHero(state){
   var lang = state.lang || 'fr';
   var t = T(lang);
@@ -1088,6 +1287,7 @@ function renderHero(state){
       +'<div class="stat"><div class="k">'+esc(t.statProgress)+'</div><div class="v tabular">'+pct+'<small>%</small></div></div>'
     +'</div>'
     +'<div class="callout"><span class="ic">💡</span><span>'+esc(t.reality)+'</span></div>'
+    +(uiAuthUser ? '<div class="account-row"><span class="account-email">'+esc(t.auth.signedInAs)+' '+esc(uiAuthUser.email)+'</span><button type="button" class="account-logout" data-action="auth-logout">'+esc(t.auth.logout)+'</button></div>' : '')
   +'</section>';
 }
 
@@ -1388,49 +1588,180 @@ function bodyContentHTML(state, openDay){
   return main + (openDay ? renderPanel(state, openDay) : '') + renderBottomNav(tab, lang) + '<div class="save-flag" id="save-flag">'+esc(t.savedFlag)+'</div>';
 }
 
-/* ---------------- full document (for publish) ---------------- */
-function renderShell(state){
-  var lang = state.lang || 'fr';
-  return '<!doctype html>\n<html lang="'+lang+'">\n<head>\n'+HEAD_HTML+'\n</head>\n<body>\n'
-    +'<div class="wrap" id="root">'+bodyContentHTML(state, null)+'</div>\n'
-    +'<script id="state-json" type="application/json">'+JSON.stringify(state).replace(/</g,'\\u003c')+'<\/script>\n'
-    +'<script src="app.js"><\/script>\n'
-    +'</body>\n</html>';
-}
-
-/* ---------------- persistence ---------------- */
+/* ---------------- persistence (Supabase, per signed-in user) ---------------- */
 function flagSaved(){
   var el = document.getElementById('save-flag');
   if(!el) return;
   el.classList.add('show');
   setTimeout(function(){ el.classList.remove('show'); }, 1400);
 }
+async function saveUserPlan(){
+  if(!supabaseClient || !uiAuthUser) return;
+  try{
+    var res = await supabaseClient.from('plans').upsert({ user_id: uiAuthUser.id, state: STATE, updated_at: new Date().toISOString() });
+    if(res.error) throw res.error;
+    flagSaved();
+  }catch(e){}
+}
 function scheduleSave(){
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(doPublish, 700);
+  saveTimer = setTimeout(saveUserPlan, 700);
 }
-function doPublish(){
-  if(!artifactApi) return;
-  artifactApi.publish(renderShell(STATE)).then(function(){ flagSaved(); }).catch(function(){});
-}
-async function initCapabilities(){
+async function loadUserPlan(userId){
   try{
-    if(window.claude && window.claude.use){
-      artifactApi = await window.claude.use('artifact');
+    var res = await supabaseClient.from('plans').select('state').eq('user_id', userId).maybeSingle();
+    if(res.error) throw res.error;
+    if(res.data && res.data.state){
+      STATE = mergeState(res.data.state);
+    } else {
+      STATE = defaultState();
+      await supabaseClient.from('plans').insert({ user_id: userId, state: STATE });
     }
-  }catch(e){ artifactApi = null; }
+  }catch(e){
+    STATE = defaultState();
+  }
+}
+async function enterApp(user){
+  uiAuthUser = { id: user.id, email: user.email };
+  await loadUserPlan(user.id);
+  uiAuthError = '';
+  uiAuthBusy = false;
+  uiAuthView = 'app';
+  render();
+}
+async function initAuthFlow(){
+  render(); // paints the splash screen immediately
+  if(!supabaseClient){
+    uiAuthView = 'config-error';
+    render();
+    return;
+  }
+  try{
+    var sessionRes = await supabaseClient.auth.getSession();
+    var session = sessionRes.data && sessionRes.data.session;
+    if(session && session.user){
+      await enterApp(session.user);
+    } else {
+      uiAuthView = 'login';
+      render();
+    }
+  }catch(e){
+    uiAuthView = 'login';
+    render();
+  }
+  supabaseClient.auth.onAuthStateChange(function(event, session){
+    if(event === 'PASSWORD_RECOVERY'){ uiAuthView = 'reset-password'; render(); return; }
+    if(event === 'SIGNED_IN' && session && session.user && uiAuthView !== 'app'){ enterApp(session.user); }
+    if(event === 'SIGNED_OUT'){ uiAuthUser = null; STATE = defaultState(); uiAuthView = 'login'; render(); }
+  });
+}
+async function doLogin(){
+  if(!supabaseClient || uiAuthBusy) return;
+  var email = (document.getElementById('auth-email')||{}).value || '';
+  var password = (document.getElementById('auth-password')||{}).value || '';
+  email = email.trim();
+  uiAuthForm.email = email;
+  if(!email || !password) return;
+  uiAuthBusy = true; uiAuthError = ''; render();
+  try{
+    var res = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
+    if(res.error) throw res.error;
+    // onAuthStateChange fires SIGNED_IN and enterApp() takes it from here
+  }catch(e){
+    uiAuthBusy = false;
+    uiAuthError = (e && e.message) || T(preAuthLang()).auth.genericError;
+    render();
+  }
+}
+async function doSignup(){
+  if(!supabaseClient || uiAuthBusy) return;
+  var t = T(preAuthLang()).auth;
+  var email = ((document.getElementById('auth-email')||{}).value || '').trim();
+  var password = (document.getElementById('auth-password')||{}).value || '';
+  var confirm = (document.getElementById('auth-password-confirm')||{}).value || '';
+  uiAuthForm.email = email;
+  if(!email || !password) return;
+  if(password.length < 6){ uiAuthError = t.passwordTooShort; render(); return; }
+  if(password !== confirm){ uiAuthError = t.passwordMismatch; render(); return; }
+  uiAuthBusy = true; uiAuthError = ''; render();
+  try{
+    var res = await supabaseClient.auth.signUp({ email: email, password: password });
+    if(res.error) throw res.error;
+    uiAuthBusy = false;
+    if(!(res.data && res.data.session)){
+      uiAuthView = 'check-email'; // email confirmation required before a session exists
+      render();
+    }
+    // if a session came back immediately (confirmation disabled), onAuthStateChange -> enterApp() handles it
+  }catch(e){
+    uiAuthBusy = false;
+    uiAuthError = (e && e.message) || t.genericError;
+    render();
+  }
+}
+async function doForgotPassword(){
+  if(!supabaseClient || uiAuthBusy) return;
+  var t = T(preAuthLang()).auth;
+  var email = ((document.getElementById('auth-email')||{}).value || '').trim();
+  uiAuthForm.email = email;
+  if(!email) return;
+  uiAuthBusy = true; uiAuthError = ''; render();
+  try{
+    var res = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + window.location.pathname });
+    if(res.error) throw res.error;
+    uiAuthBusy = false;
+    uiAuthView = 'forgot-sent';
+    render();
+  }catch(e){
+    uiAuthBusy = false;
+    uiAuthError = (e && e.message) || t.genericError;
+    render();
+  }
+}
+async function doResetPassword(){
+  if(!supabaseClient || uiAuthBusy) return;
+  var t = T(preAuthLang()).auth;
+  var password = (document.getElementById('auth-new-password')||{}).value || '';
+  if(!password) return;
+  if(password.length < 6){ uiAuthError = t.passwordTooShort; render(); return; }
+  uiAuthBusy = true; uiAuthError = ''; render();
+  try{
+    var res = await supabaseClient.auth.updateUser({ password: password });
+    if(res.error) throw res.error;
+    var sessionRes = await supabaseClient.auth.getSession();
+    var session = sessionRes.data && sessionRes.data.session;
+    uiAuthBusy = false;
+    if(session && session.user){ await enterApp(session.user); }
+    else { uiAuthView = 'login'; render(); }
+  }catch(e){
+    uiAuthBusy = false;
+    uiAuthError = (e && e.message) || t.genericError;
+    render();
+  }
+}
+async function doLogout(){
+  if(!supabaseClient) return;
+  try{ await supabaseClient.auth.signOut(); }catch(e){}
+  // onAuthStateChange's SIGNED_OUT branch resets STATE and switches back to the login view
 }
 
 /* ---------------- render + events ---------------- */
 function render(){
   document.documentElement.setAttribute('lang', STATE.lang || 'fr');
-  document.getElementById('root').innerHTML = bodyContentHTML(STATE, uiOpenDay);
+  var root = document.getElementById('root');
+  root.innerHTML = uiAuthView !== 'app' ? renderAuthScreen() : bodyContentHTML(STATE, uiOpenDay);
 }
 
 function onRootClick(e){
   var t = e.target.closest('[data-action]');
   if(!t) return;
   var action = t.getAttribute('data-action');
+  if(action==='auth-goto'){ uiAuthView = t.getAttribute('data-view'); uiAuthError = ''; render(); return; }
+  if(action==='auth-login'){ doLogin(); return; }
+  if(action==='auth-signup'){ doSignup(); return; }
+  if(action==='auth-forgot'){ doForgotPassword(); return; }
+  if(action==='auth-reset'){ doResetPassword(); return; }
+  if(action==='auth-logout'){ doLogout(); return; }
   if(action==='speak'){
     e.stopPropagation();
     speak(t.getAttribute('data-text'), t.getAttribute('data-lang'));
@@ -1535,6 +1866,10 @@ function onRootChange(e){
 }
 function onRootInput(e){
   var t = e.target;
+  if(t.id === 'auth-email'){
+    uiAuthForm.email = t.value; // remembered silently; no render() so the field keeps focus while typing
+    return;
+  }
   if(t.matches('[data-action="note"]')){
     STATE.notes[t.getAttribute('data-cat')] = t.value;
     scheduleSave();
@@ -1549,9 +1884,8 @@ function onRootInput(e){
 }
 
 document.addEventListener('DOMContentLoaded', function(){
-  render();
   document.getElementById('root').addEventListener('click', onRootClick);
   document.getElementById('root').addEventListener('change', onRootChange);
   document.getElementById('root').addEventListener('input', onRootInput);
-  initCapabilities();
+  initAuthFlow();
 });
