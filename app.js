@@ -316,7 +316,9 @@ var DICT = {
     dayPanelTitle: "Jour",
     dayPanelAria: "Programme du jour",
     connectorsDeckName: "Connecteurs logiques",
-    fcTitle: "Fiches & Quiz",
+    navLabels: { plan:"Plan", test:"Test", results:"Résultats", tcf:"TCF", notebook:"Carnet" },
+    navAria: "Navigation principale",
+    fcTitle: "Test",
     fcHint: "Révisez le vocabulaire par thème, puis testez-vous",
     fcDeckAria: "Choisir un thème",
     fcEmpty: "Choisissez un thème ci-dessus pour commencer",
@@ -339,6 +341,18 @@ var DICT = {
     quizBack: "← Retour aux fiches",
     quizPromptFr2En: "Que signifie « {w} » ?",
     quizPromptEn2Fr: "Comment dit-on « {w} » en français ?",
+    quizTierGreat: "Excellent ! 🌟",
+    quizTierGood: "Bien joué ! 🎉",
+    quizTierOk: "Pas mal, continuez ! 🙂",
+    quizTierLow: "Courage, on retente ! 💪",
+    results: {
+      title: "Résultats",
+      hint: "Historique de tous vos quiz",
+      empty: "Aucun quiz pour le moment — lancez-en un dans l'onglet Test !",
+      totalLabel: "Quiz complétés",
+      avgLabel: "Score moyen",
+      bestLabel: "Meilleur score"
+    },
     tcf: {
       title: "Calculateur de niveau TCF Canada",
       hint: "Entrez votre score brut pour chaque compétence — chacune est notée indépendamment, sans moyenne.",
@@ -406,7 +420,9 @@ var DICT = {
     dayPanelTitle: "Day",
     dayPanelAria: "Day schedule for",
     connectorsDeckName: "Logical connectors",
-    fcTitle: "Flashcards & Quiz",
+    navLabels: { plan:"Plan", test:"Test", results:"Results", tcf:"TCF", notebook:"Notebook" },
+    navAria: "Main navigation",
+    fcTitle: "Test",
     fcHint: "Review vocabulary by theme, then test yourself",
     fcDeckAria: "Choose a theme",
     fcEmpty: "Choose a theme above to get started",
@@ -429,6 +445,18 @@ var DICT = {
     quizBack: "← Back to flashcards",
     quizPromptFr2En: "What does “{w}” mean?",
     quizPromptEn2Fr: "How do you say “{w}” in French?",
+    quizTierGreat: "Amazing! 🌟",
+    quizTierGood: "Great job! 🎉",
+    quizTierOk: "Not bad, keep going! 🙂",
+    quizTierLow: "Keep practicing! 💪",
+    results: {
+      title: "Results",
+      hint: "History of all your quiz attempts",
+      empty: "No quizzes yet — take one in the Test tab!",
+      totalLabel: "Quizzes taken",
+      avgLabel: "Average score",
+      bestLabel: "Best score"
+    },
     tcf: {
       title: "TCF Canada Grading Calculator",
       hint: "Enter your raw score for each skill — each one is graded independently, with no averaging.",
@@ -583,7 +611,7 @@ function blocksForWeekday(weekdayJs){ return weekdayJs===0 ? BLOCKS_SUNDAY : BLO
 
 /* ---------------- state ---------------- */
 function defaultState(){
-  return { startDate: "2026-09-12", examTarget: "TEF", lang: "fr", tasks: {}, notes: { listening:"", reading:"", speaking:"", writing:"" }, quizScores: {}, tcfScores: { listening:null, reading:null, speaking:null, writing:null } };
+  return { startDate: "2026-09-12", examTarget: "TEF", lang: "fr", tasks: {}, notes: { listening:"", reading:"", speaking:"", writing:"" }, quizScores: {}, quizHistory: [], tcfScores: { listening:null, reading:null, speaking:null, writing:null } };
 }
 function loadInitialState(){
   try{
@@ -594,6 +622,7 @@ function loadInitialState(){
       return Object.assign(d, parsed, {
         notes: Object.assign(d.notes, parsed.notes||{}),
         quizScores: Object.assign(d.quizScores, parsed.quizScores||{}),
+        quizHistory: parsed.quizHistory || d.quizHistory,
         tcfScores: Object.assign(d.tcfScores, parsed.tcfScores||{})
       });
     }
@@ -603,6 +632,7 @@ function loadInitialState(){
 
 var STATE = loadInitialState();
 var uiOpenDay = null;
+var uiActiveTab = 'plan';
 var artifactApi = null;
 var saveTimer = null;
 
@@ -722,6 +752,38 @@ function playFanfareSound(){
   playTone(659.25, 0.16, {type:'sine', volume:0.15, delay:0.13});
   playTone(783.99, 0.28, {type:'sine', volume:0.16, delay:0.26});
 }
+
+/* ---------------- confetti burst (pure CSS/JS, no assets) ---------------- */
+var CONFETTI_COLORS = ['var(--accent-pink)','var(--accent-blue)','var(--accent-green)','var(--accent-amber)'];
+function burstConfetti(){
+  try{
+    var layer = document.createElement('div');
+    layer.className = 'confetti-layer';
+    var count = 60;
+    for(var i=0;i<count;i++){
+      var el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.left = (Math.random()*100)+'vw';
+      el.style.background = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
+      el.style.animationDelay = (Math.random()*0.35)+'s';
+      el.style.animationDuration = (1.5 + Math.random()*1.2)+'s';
+      el.style.setProperty('--rot', ((Math.random()*720)-360)+'deg');
+      el.style.setProperty('--drift', ((Math.random()*180)-90)+'px');
+      if(Math.random()<0.5) el.style.borderRadius = '50%';
+      layer.appendChild(el);
+    }
+    document.body.appendChild(layer);
+    setTimeout(function(){ layer.remove(); }, 3200);
+  }catch(e){}
+}
+/* score tiers shared by the quiz results view and the results history tab */
+function quizTier(pct){
+  if(pct>=90) return 'great';
+  if(pct>=70) return 'good';
+  if(pct>=50) return 'ok';
+  return 'low';
+}
+var CONFETTI_THRESHOLD = 70;
 
 function buildQuiz(deck, count){
   var pool = shuffleArr(deck.cards);
@@ -1182,10 +1244,13 @@ function renderFlashcardViewer(state, lang, t){
 function renderQuiz(state, lang, t){
   if(uiQuiz.finished){
     var pct = Math.round(uiQuiz.score/uiQuiz.questions.length*100);
+    var tier = quizTier(pct);
+    var tierMsg = { great:t.quizTierGreat, good:t.quizTierGood, ok:t.quizTierOk, low:t.quizTierLow }[tier];
     return ''
-    +'<div class="quiz-wrap"><div class="quiz-results">'
+    +'<div class="quiz-wrap"><div class="quiz-results tier-'+tier+'">'
       +'<h3>'+esc(t.quizResultsTitle)+'</h3>'
       +'<div class="score tabular">'+pct+'%</div>'
+      +'<div class="tier-msg">'+esc(tierMsg)+'</div>'
       +'<div>'+uiQuiz.score+' '+esc(t.quizScoreOf)+' '+uiQuiz.questions.length+'</div>'
       +'<div class="fc-controls" style="margin-top:16px;">'
         +'<button type="button" class="fc-btn primary" data-action="quiz-retake">'+esc(t.quizRetake)+'</button>'
@@ -1217,6 +1282,41 @@ function renderQuiz(state, lang, t){
   +'</div>';
 }
 
+function renderResults(state){
+  var lang = state.lang || 'fr';
+  var t = T(lang), tr = t.results;
+  var history = (state.quizHistory || []).slice().reverse();
+  var total = history.length;
+  var avg = total ? Math.round(history.reduce(function(s,h){ return s+h.pct; },0)/total) : 0;
+  var best = 0; history.forEach(function(h){ if(h.pct>best) best=h.pct; });
+  var summary = ''
+    +'<div class="results-summary">'
+      +'<div class="results-stat"><div class="v tabular">'+total+'</div><div class="k">'+esc(tr.totalLabel)+'</div></div>'
+      +'<div class="results-stat"><div class="v tabular">'+avg+'%</div><div class="k">'+esc(tr.avgLabel)+'</div></div>'
+      +'<div class="results-stat"><div class="v tabular">'+best+'%</div><div class="k">'+esc(tr.bestLabel)+'</div></div>'
+    +'</div>';
+  var body;
+  if(!total){
+    body = '<div class="results-empty">'+esc(tr.empty)+'</div>';
+  } else {
+    var tierEmoji = { great:'🌟', good:'🎉', ok:'🙂', low:'💪' };
+    body = '<div class="results-list">'+history.map(function(h){
+      var tier = quizTier(h.pct);
+      var dateStr = new Date(h.date).toLocaleDateString(t.locale, {day:'numeric', month:'short', year:'numeric'});
+      return '<div class="result-row tier-'+tier+'">'
+        +'<span class="result-emoji">'+tierEmoji[tier]+'</span>'
+        +'<div class="result-info"><div class="result-deck">'+esc(deckTitle(h.deck, lang))+'</div><div class="result-date">'+esc(dateStr)+'</div></div>'
+        +'<div class="result-score tabular">'+h.pct+'%</div>'
+      +'</div>';
+    }).join('')+'</div>';
+  }
+  return ''
+  +'<div class="section">'
+    +'<div class="section-head"><h2>'+esc(tr.title)+'</h2><span class="hint">'+esc(tr.hint)+'</span></div>'
+    +summary + body
+  +'</div>';
+}
+
 function renderNotebook(state){
   var lang = state.lang || 'fr';
   var t = T(lang);
@@ -1244,10 +1344,35 @@ function renderFooter(state){
   +'</div>';
 }
 
+var NAV_TABS = [
+  {id:'plan', ic:'🏠'},
+  {id:'test', ic:'🎯'},
+  {id:'results', ic:'🏆'},
+  {id:'tcf', ic:'🎓'},
+  {id:'notebook', ic:'🗂️'}
+];
+function renderBottomNav(activeTab, lang){
+  var t = T(lang);
+  return ''
+  +'<nav class="bottom-nav" role="navigation" aria-label="'+esc(t.navAria)+'">'
+    +NAV_TABS.map(function(tb){
+      return '<button type="button" class="nav-btn'+(activeTab===tb.id?' active':'')+'" data-action="set-tab" data-tab="'+tb.id+'">'
+        +'<span class="nav-ic">'+tb.ic+'</span><span class="nav-lbl">'+esc(t.navLabels[tb.id])+'</span>'
+      +'</button>';
+    }).join('')
+  +'</nav>';
+}
 function bodyContentHTML(state, openDay){
   var lang = state.lang || 'fr';
   var t = T(lang);
-  return renderHero(state) + renderLegend(state) + renderCalendar(state) + (openDay ? renderPanel(state, openDay) : '') + renderSkills(state) + renderFlashcards(state) + renderTcfCalculator(state) + renderNotebook(state) + renderFooter(state) + '<div class="save-flag" id="save-flag">'+esc(t.savedFlag)+'</div>';
+  var tab = uiActiveTab || 'plan';
+  var main = '';
+  if(tab==='plan') main = renderHero(state) + renderLegend(state) + renderCalendar(state) + renderSkills(state) + renderFooter(state);
+  else if(tab==='test') main = renderFlashcards(state);
+  else if(tab==='results') main = renderResults(state);
+  else if(tab==='tcf') main = renderTcfCalculator(state);
+  else if(tab==='notebook') main = renderNotebook(state);
+  return main + (openDay ? renderPanel(state, openDay) : '') + renderBottomNav(tab, lang) + '<div class="save-flag" id="save-flag">'+esc(t.savedFlag)+'</div>';
 }
 
 /* ---------------- full document (for publish) ---------------- */
@@ -1298,6 +1423,11 @@ function onRootClick(e){
     speak(t.getAttribute('data-text'), t.getAttribute('data-lang'));
     return;
   }
+  if(action==='set-tab'){
+    var newTab = t.getAttribute('data-tab');
+    if(newTab !== uiActiveTab){ uiActiveTab = newTab; playClickSound(); render(); }
+    return;
+  }
   if(action==='open-day'){ uiOpenDay = parseInt(t.getAttribute('data-day'),10); render(); }
   else if(action==='close-panel' || action==='close-overlay'){
     if(action==='close-overlay' && e.target !== t) return; // only backdrop itself
@@ -1344,9 +1474,11 @@ function onRootClick(e){
   else if(action==='quiz-answer'){
     if(uiQuiz && !uiQuiz.answered){
       var choice = t.getAttribute('data-choice');
+      var q = uiQuiz.questions[uiQuiz.idx];
       uiQuiz.answered = true;
       uiQuiz.selected = choice;
-      if(choice === uiQuiz.questions[uiQuiz.idx].correct){ uiQuiz.score++; playCorrectSound(); } else { playWrongSound(); }
+      if(choice === q.correct){ uiQuiz.score++; playCorrectSound(); } else { playWrongSound(); }
+      speak(choice, q.dir==='fr2en' ? 'en-US' : 'fr-FR'); // read the tapped answer aloud
       render();
     }
   }
@@ -1360,7 +1492,10 @@ function onRootClick(e){
         var pct = Math.round(uiQuiz.score / uiQuiz.questions.length * 100);
         var prev = STATE.quizScores[uiDeckKey] || { best:0, attempts:0 };
         STATE.quizScores[uiDeckKey] = { best: Math.max(prev.best||0, pct), attempts: (prev.attempts||0)+1 };
+        if(!STATE.quizHistory) STATE.quizHistory = [];
+        STATE.quizHistory.push({ deck: uiDeckKey, pct: pct, score: uiQuiz.score, total: uiQuiz.questions.length, date: new Date().toISOString() });
         playFanfareSound();
+        if(pct >= CONFETTI_THRESHOLD) burstConfetti();
         scheduleSave();
       }
       render();
