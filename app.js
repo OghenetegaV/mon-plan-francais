@@ -1,0 +1,1339 @@
+/* ============ Mon Plan Français — 90-day NCLC 9 planner (bilingual FR/EN) ============ */
+
+var HEAD_HTML = [
+  '<meta charset="UTF-8">',
+  '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
+  '<title>Mon Plan Français</title>',
+  '<link rel="preconnect" href="https://fonts.googleapis.com">',
+  '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Nunito:wght@400;600;700;800&family=Caveat:wght@600;700&display=swap">',
+  '<link rel="stylesheet" href="styles.css">'
+].join('\n');
+
+var TOTAL_DAYS = 90;
+
+/* ---------------- bilingual content pools (index-aligned) ---------------- */
+var VOCAB_TOPICS = {
+  fr: ["la société","l'emploi","l'éducation","l'environnement","la technologie","la santé","le gouvernement","l'économie","l'immigration","le logement","les transports","la famille","la culture","la criminalité","la justice","l'égalité","le travail","les sciences"],
+  en: ["society","employment","education","environment","technology","health","government","economy","immigration","housing","transportation","family","culture","crime","justice","equality","work","science"]
+};
+
+var SPEAKING_PROMPTS = {
+  fr: [
+    "Les inégalités sociales augmentent-elles dans votre pays ?",
+    "Le télétravail est-il bénéfique pour les employés ?",
+    "Faut-il interdire les téléphones portables dans les écoles ?",
+    "Les gouvernements en font-ils assez pour lutter contre le changement climatique ?",
+    "L'intelligence artificielle va-t-elle remplacer les emplois humains ?",
+    "Le système de santé public devrait-il être gratuit pour tous ?",
+    "Le gouvernement devrait-il investir davantage dans les transports publics ?",
+    "La mondialisation profite-t-elle réellement à tous les pays ?",
+    "L'immigration est-elle une richesse pour un pays ?",
+    "Le logement abordable devrait-il être un droit fondamental ?",
+    "Faut-il interdire les voitures individuelles dans les centres-villes ?",
+    "La structure familiale traditionnelle évolue-t-elle trop rapidement ?",
+    "La mondialisation menace-t-elle les cultures locales ?",
+    "Les peines de prison réduisent-elles réellement la criminalité ?",
+    "L'accès à la justice est-il égal pour tous les citoyens ?",
+    "L'égalité des sexes est-elle atteinte dans le monde du travail ?",
+    "Faut-il réduire la semaine de travail à quatre jours ?",
+    "La science devrait-elle avoir des limites éthiques ?"
+  ],
+  en: [
+    "Are social inequalities increasing in your country?",
+    "Is remote work beneficial for employees?",
+    "Should phones be banned in schools?",
+    "Are governments doing enough to fight climate change?",
+    "Will artificial intelligence replace human jobs?",
+    "Should public healthcare be free for everyone?",
+    "Should the government invest more in public transportation?",
+    "Does globalization really benefit every country?",
+    "Is immigration an asset for a country?",
+    "Should affordable housing be a fundamental right?",
+    "Should private cars be banned from city centers?",
+    "Is the traditional family structure changing too fast?",
+    "Does globalization threaten local cultures?",
+    "Do prison sentences really reduce crime?",
+    "Is access to justice equal for all citizens?",
+    "Has gender equality been achieved in the workplace?",
+    "Should the work week be reduced to four days?",
+    "Should science have ethical limits?"
+  ]
+};
+
+/* ---------------- flashcard decks (fr term / en meaning / fr example) ---------------- */
+/* deck index i (0-17) pairs with VOCAB_TOPICS[lang][i]; "connectors" is a standalone deck */
+var FLASHCARD_DECKS = [
+  { key:"topic0", cards:[
+    {fr:"la société", en:"society", ex:"La société évolue rapidement avec les nouvelles technologies."},
+    {fr:"un citoyen", en:"a citizen", ex:"Chaque citoyen a des droits et des devoirs."},
+    {fr:"l'inégalité", en:"inequality", ex:"Les inégalités sociales restent un défi majeur."},
+    {fr:"la solidarité", en:"solidarity", ex:"La solidarité entre générations est essentielle."},
+    {fr:"un enjeu", en:"a stake / an issue", ex:"C'est un enjeu de société important."},
+    {fr:"la cohésion sociale", en:"social cohesion", ex:"La cohésion sociale renforce la stabilité du pays."}
+  ]},
+  { key:"topic1", cards:[
+    {fr:"un emploi", en:"a job", ex:"Trouver un emploi stable n'est pas toujours facile."},
+    {fr:"le chômage", en:"unemployment", ex:"Le taux de chômage a baissé cette année."},
+    {fr:"un employeur", en:"an employer", ex:"L'employeur doit respecter le droit du travail."},
+    {fr:"une candidature", en:"a job application", ex:"J'ai envoyé ma candidature la semaine dernière."},
+    {fr:"le télétravail", en:"remote work", ex:"Le télétravail s'est généralisé depuis la pandémie."},
+    {fr:"la formation professionnelle", en:"professional training", ex:"La formation professionnelle améliore l'employabilité."}
+  ]},
+  { key:"topic2", cards:[
+    {fr:"l'éducation", en:"education", ex:"L'éducation est la clé du développement."},
+    {fr:"un établissement scolaire", en:"a school institution", ex:"Cet établissement scolaire accueille 500 élèves."},
+    {fr:"le décrochage scolaire", en:"dropping out of school", ex:"Le décrochage scolaire inquiète les enseignants."},
+    {fr:"une bourse d'études", en:"a scholarship", ex:"Elle a obtenu une bourse d'études à l'étranger."},
+    {fr:"l'apprentissage", en:"learning / apprenticeship", ex:"L'apprentissage des langues demande de la pratique."},
+    {fr:"un diplôme", en:"a diploma", ex:"Il a obtenu son diplôme avec mention."}
+  ]},
+  { key:"topic3", cards:[
+    {fr:"le réchauffement climatique", en:"global warming", ex:"Le réchauffement climatique menace les écosystèmes."},
+    {fr:"une énergie renouvelable", en:"a renewable energy", ex:"Le pays investit dans les énergies renouvelables."},
+    {fr:"la pollution", en:"pollution", ex:"La pollution de l'air affecte la santé publique."},
+    {fr:"le développement durable", en:"sustainable development", ex:"Le développement durable concilie économie et écologie."},
+    {fr:"une empreinte carbone", en:"a carbon footprint", ex:"Réduire son empreinte carbone est devenu une priorité."},
+    {fr:"la biodiversité", en:"biodiversity", ex:"La biodiversité décline à un rythme alarmant."}
+  ]},
+  { key:"topic4", cards:[
+    {fr:"l'intelligence artificielle", en:"artificial intelligence", ex:"L'intelligence artificielle transforme le monde du travail."},
+    {fr:"un algorithme", en:"an algorithm", ex:"Cet algorithme analyse des millions de données."},
+    {fr:"la vie privée", en:"privacy", ex:"La technologie soulève des questions de vie privée."},
+    {fr:"une innovation", en:"an innovation", ex:"Cette innovation a révolutionné le secteur."},
+    {fr:"le numérique", en:"digital (technology)", ex:"La transition numérique s'accélère."},
+    {fr:"une donnée", en:"a piece of data", ex:"Les données personnelles doivent être protégées."}
+  ]},
+  { key:"topic5", cards:[
+    {fr:"le système de santé", en:"the healthcare system", ex:"Le système de santé public est sous pression."},
+    {fr:"un patient", en:"a patient", ex:"Le patient a été bien pris en charge."},
+    {fr:"la prévention", en:"prevention", ex:"La prévention reste la meilleure arme contre la maladie."},
+    {fr:"un traitement", en:"a treatment", ex:"Ce traitement a montré de bons résultats."},
+    {fr:"l'accès aux soins", en:"access to care", ex:"L'accès aux soins reste inégal selon les régions."},
+    {fr:"le bien-être", en:"well-being", ex:"Le bien-être au travail est de plus en plus valorisé."}
+  ]},
+  { key:"topic6", cards:[
+    {fr:"le gouvernement", en:"the government", ex:"Le gouvernement a annoncé de nouvelles mesures."},
+    {fr:"une politique publique", en:"a public policy", ex:"Cette politique publique vise à réduire la pauvreté."},
+    {fr:"un élu", en:"an elected official", ex:"Les élus locaux gèrent le budget municipal."},
+    {fr:"une réforme", en:"a reform", ex:"La réforme des retraites a suscité des débats."},
+    {fr:"le pouvoir", en:"power / authority", ex:"La séparation des pouvoirs garantit la démocratie."},
+    {fr:"un décret", en:"a decree", ex:"Le décret entre en vigueur le mois prochain."}
+  ]},
+  { key:"topic7", cards:[
+    {fr:"la croissance économique", en:"economic growth", ex:"La croissance économique a ralenti cette année."},
+    {fr:"l'inflation", en:"inflation", ex:"L'inflation pèse sur le pouvoir d'achat."},
+    {fr:"un marché", en:"a market", ex:"Le marché du travail reste tendu."},
+    {fr:"une entreprise", en:"a company", ex:"Cette entreprise emploie 200 personnes."},
+    {fr:"la mondialisation", en:"globalization", ex:"La mondialisation a transformé les échanges commerciaux."},
+    {fr:"le pouvoir d'achat", en:"purchasing power", ex:"Le pouvoir d'achat des ménages a diminué."}
+  ]},
+  { key:"topic8", cards:[
+    {fr:"un immigrant", en:"an immigrant", ex:"Les immigrants contribuent à l'économie locale."},
+    {fr:"l'intégration", en:"integration", ex:"L'intégration passe souvent par la langue."},
+    {fr:"un réfugié", en:"a refugee", ex:"Le pays a accueilli des milliers de réfugiés."},
+    {fr:"un titre de séjour", en:"a residence permit", ex:"Il attend son titre de séjour depuis six mois."},
+    {fr:"la diversité culturelle", en:"cultural diversity", ex:"La diversité culturelle enrichit la société."},
+    {fr:"l'accueil", en:"reception / welcoming", ex:"L'accueil des nouveaux arrivants est essentiel."}
+  ]},
+  { key:"topic9", cards:[
+    {fr:"le logement", en:"housing", ex:"Le logement abordable manque dans les grandes villes."},
+    {fr:"un loyer", en:"rent", ex:"Les loyers ont fortement augmenté cette année."},
+    {fr:"un locataire", en:"a tenant", ex:"Le locataire doit respecter le contrat de bail."},
+    {fr:"un propriétaire", en:"a landlord / owner", ex:"Le propriétaire est responsable des réparations."},
+    {fr:"la crise du logement", en:"the housing crisis", ex:"La crise du logement touche surtout les jeunes."},
+    {fr:"un quartier", en:"a neighborhood", ex:"Ce quartier est en pleine rénovation."}
+  ]},
+  { key:"topic10", cards:[
+    {fr:"les transports en commun", en:"public transportation", ex:"Les transports en commun réduisent la pollution."},
+    {fr:"un embouteillage", en:"a traffic jam", ex:"Les embouteillages coûtent du temps et de l'argent."},
+    {fr:"une infrastructure", en:"an infrastructure", ex:"Le pays investit dans ses infrastructures routières."},
+    {fr:"la mobilité durable", en:"sustainable mobility", ex:"La mobilité durable devient une priorité urbaine."},
+    {fr:"un trajet", en:"a trip / commute", ex:"Son trajet domicile-travail dure une heure."},
+    {fr:"une voie ferrée", en:"a railway", ex:"La voie ferrée relie les deux grandes villes."}
+  ]},
+  { key:"topic11", cards:[
+    {fr:"la structure familiale", en:"family structure", ex:"La structure familiale a beaucoup évolué."},
+    {fr:"un parent", en:"a parent / relative", ex:"Les parents jouent un rôle clé dans l'éducation."},
+    {fr:"la garde d'enfants", en:"childcare", ex:"La garde d'enfants reste coûteuse pour les familles."},
+    {fr:"le congé parental", en:"parental leave", ex:"Le congé parental est mieux partagé aujourd'hui."},
+    {fr:"un foyer", en:"a household", ex:"Le revenu du foyer détermine l'accès à certaines aides."},
+    {fr:"la génération", en:"generation", ex:"Chaque génération a ses propres défis."}
+  ]},
+  { key:"topic12", cards:[
+    {fr:"le patrimoine culturel", en:"cultural heritage", ex:"Le patrimoine culturel doit être préservé."},
+    {fr:"une œuvre", en:"a (creative) work", ex:"Cette œuvre a marqué l'histoire de l'art."},
+    {fr:"la diversité", en:"diversity", ex:"La diversité culturelle se reflète dans la gastronomie."},
+    {fr:"un événement culturel", en:"a cultural event", ex:"La ville organise un grand événement culturel."},
+    {fr:"l'identité", en:"identity", ex:"La langue façonne l'identité d'un peuple."},
+    {fr:"la mondialisation culturelle", en:"cultural globalization", ex:"La mondialisation culturelle inquiète certains artistes."}
+  ]},
+  { key:"topic13", cards:[
+    {fr:"la criminalité", en:"crime (rate)", ex:"La criminalité a légèrement baissé cette année."},
+    {fr:"un délit", en:"an offense", ex:"Ce délit est puni par la loi."},
+    {fr:"la sécurité", en:"security / safety", ex:"La sécurité publique est une priorité du gouvernement."},
+    {fr:"une peine de prison", en:"a prison sentence", ex:"Il a été condamné à une peine de prison."},
+    {fr:"la récidive", en:"reoffending", ex:"Le taux de récidive reste préoccupant."},
+    {fr:"la prévention de la délinquance", en:"crime prevention", ex:"La prévention de la délinquance commence tôt."}
+  ]},
+  { key:"topic14", cards:[
+    {fr:"la justice", en:"justice", ex:"L'accès à la justice doit être garanti à tous."},
+    {fr:"un tribunal", en:"a court", ex:"L'affaire sera jugée devant le tribunal."},
+    {fr:"un avocat", en:"a lawyer", ex:"L'avocat a plaidé la légitime défense."},
+    {fr:"un procès", en:"a trial", ex:"Le procès a duré plusieurs semaines."},
+    {fr:"les droits de l'homme", en:"human rights", ex:"Les droits de l'homme sont universels."},
+    {fr:"une loi", en:"a law", ex:"Cette loi entrera en vigueur en janvier."}
+  ]},
+  { key:"topic15", cards:[
+    {fr:"l'égalité des sexes", en:"gender equality", ex:"L'égalité des sexes progresse lentement au travail."},
+    {fr:"la discrimination", en:"discrimination", ex:"La discrimination à l'embauche reste fréquente."},
+    {fr:"l'équité", en:"fairness / equity", ex:"L'équité salariale est revendiquée depuis des années."},
+    {fr:"les droits", en:"rights", ex:"Les droits fondamentaux doivent être protégés."},
+    {fr:"une minorité", en:"a minority", ex:"Les minorités sont souvent sous-représentées."},
+    {fr:"la parité", en:"parity", ex:"La parité est loin d'être atteinte dans certains secteurs."}
+  ]},
+  { key:"topic16", cards:[
+    {fr:"les conditions de travail", en:"working conditions", ex:"Les conditions de travail se sont améliorées."},
+    {fr:"un salarié", en:"an employee", ex:"Le salarié a droit à des congés payés."},
+    {fr:"la semaine de travail", en:"the work week", ex:"Certains pays testent la semaine de quatre jours."},
+    {fr:"l'équilibre vie pro-vie perso", en:"work-life balance", ex:"L'équilibre vie pro-vie perso est un enjeu majeur."},
+    {fr:"une négociation", en:"a negotiation", ex:"La négociation salariale a été difficile."},
+    {fr:"le syndicat", en:"the (labor) union", ex:"Le syndicat a organisé une grève."}
+  ]},
+  { key:"topic17", cards:[
+    {fr:"une découverte", en:"a discovery", ex:"Cette découverte pourrait changer la médecine."},
+    {fr:"la recherche scientifique", en:"scientific research", ex:"La recherche scientifique nécessite des financements."},
+    {fr:"une expérience", en:"an experiment", ex:"Les résultats de l'expérience sont concluants."},
+    {fr:"l'éthique", en:"ethics", ex:"L'éthique scientifique encadre certaines pratiques."},
+    {fr:"un chercheur", en:"a researcher", ex:"Le chercheur a publié ses résultats récemment."},
+    {fr:"une avancée technologique", en:"a technological advance", ex:"Cette avancée technologique suscite l'espoir."}
+  ]},
+  { key:"connectors", cards:[
+    {fr:"puisque", en:"since (cause)", ex:"Puisque vous êtes d'accord, nous pouvons continuer."},
+    {fr:"étant donné que", en:"given that", ex:"Étant donné que le budget est limité, il faut prioriser."},
+    {fr:"en raison de", en:"due to", ex:"Le vol a été annulé en raison du mauvais temps."},
+    {fr:"grâce à", en:"thanks to", ex:"Grâce à cette réforme, l'accès aux soins s'est amélioré."},
+    {fr:"par conséquent", en:"consequently", ex:"Par conséquent, les prix ont augmenté."},
+    {fr:"ainsi", en:"thus", ex:"Ainsi, le projet a pu voir le jour."},
+    {fr:"de ce fait", en:"as a result", ex:"De ce fait, la demande a explosé."},
+    {fr:"donc", en:"so / therefore", ex:"Il pleut, donc nous restons à la maison."},
+    {fr:"cependant", en:"however", ex:"Cependant, des progrès restent à faire."},
+    {fr:"toutefois", en:"nevertheless", ex:"Toutefois, la situation reste fragile."},
+    {fr:"néanmoins", en:"nonetheless", ex:"Néanmoins, le projet a été un succès."},
+    {fr:"en revanche", en:"on the other hand", ex:"En revanche, les coûts ont augmenté."},
+    {fr:"bien que", en:"although", ex:"Bien que ce soit difficile, elle a réussi."},
+    {fr:"malgré", en:"despite", ex:"Malgré les obstacles, il a persévéré."},
+    {fr:"même si", en:"even if", ex:"Même si c'est risqué, il faut essayer."},
+    {fr:"certes… mais…", en:"admittedly… but…", ex:"Certes, c'est coûteux, mais c'est nécessaire."},
+    {fr:"de plus", en:"moreover", ex:"De plus, ce plan réduit les coûts."},
+    {fr:"en outre", en:"furthermore", ex:"En outre, le délai a été raccourci."},
+    {fr:"par ailleurs", en:"besides", ex:"Par ailleurs, une aide financière est prévue."},
+    {fr:"en somme", en:"in short", ex:"En somme, la réforme a porté ses fruits."},
+    {fr:"en définitive", en:"ultimately", ex:"En définitive, le bilan est positif."},
+    {fr:"pour conclure", en:"to conclude", ex:"Pour conclure, cette approche mérite d'être développée."}
+  ]}
+];
+function deckTitle(key, lang){
+  if(key==='connectors') return T(lang).connectorsDeckName;
+  var idx = parseInt(key.replace('topic',''),10);
+  var pool = VOCAB_TOPICS[lang] || VOCAB_TOPICS.fr;
+  var name = pool[idx];
+  return name.charAt(0).toUpperCase() + name.slice(1);
+}
+function findDeck(key){
+  for(var i=0;i<FLASHCARD_DECKS.length;i++){ if(FLASHCARD_DECKS[i].key===key) return FLASHCARD_DECKS[i]; }
+  return null;
+}
+
+/* block ids/times/icons are language-neutral; labels come from T(lang).blockLabels */
+var BLOCKS_WEEKDAY = [
+  {id:"immersion", time:"6:30–7:00",   ic:"🎧"},
+  {id:"vocab",     time:"7:00–8:00",   ic:"📝"},
+  {id:"grammar",   time:"8:00–9:30",   ic:"📚"},
+  {id:"listening", time:"9:30–11:00",  ic:"👂"},
+  {id:"reading",   time:"11:00–12:00", ic:"📖"},
+  {id:"speaking",  time:"1:00–2:30",   ic:"🗣️"},
+  {id:"writing",   time:"2:30–3:30",   ic:"✍️"},
+  {id:"examblock", time:"4:00–5:00",   ic:"⏱️"},
+  {id:"errorlog",  time:"5:00–6:00",   ic:"🗂️"}
+];
+var BLOCKS_SUNDAY = [
+  {id:"immersion", timeKey:"morning",   ic:"🎧"},
+  {id:"review",    timeKey:"midday",    ic:"📚"},
+  {id:"practice",  timeKey:"afternoon", ic:"🌸"}
+];
+var SKILL_CATS = [
+  {id:"grammar",   ic:"📚"},
+  {id:"vocab",     ic:"📝"},
+  {id:"listening", ic:"👂"},
+  {id:"reading",   ic:"📖"},
+  {id:"speaking",  ic:"🗣️"},
+  {id:"writing",   ic:"✍️"}
+];
+
+/* ---------------- i18n dictionary ---------------- */
+var DICT = {
+  fr: {
+    locale: "fr-FR",
+    heroTitle: "Mon Plan Français 🥐",
+    heroSub: "90 jours vers NCLC 9",
+    heroTag: "Un programme intensif de 7h/jour vers le TEF/TCF Canada — écoute, lecture, oral, écrit, tous poussés vers le niveau C1.",
+    examAria: "Choix de l'examen",
+    langAria: "Langue de l'interface",
+    startLabel: "Jour 1 :",
+    statToday: "Aujourd'hui",
+    statPhase: "Phase actuelle",
+    statStreak: "Série en cours",
+    statProgress: "Progression totale",
+    notStarted: "Pas encore commencé",
+    planDone: "Plan terminé ! 🎉",
+    dayWord: "Jour",
+    dayUnit: "jour",
+    reality: "Repère honnête : viser NCLC 9 dans les 4 compétences en partant de zéro en 90 jours est extrêmement ambitieux. C'est jouable avec 6–8h/jour de travail concentré, mais rien ne le garantit — visez donc au-dessus du seuil pendant vos simulations, pas tout juste dessus.",
+    phaseNames: {phase1:"Construire les bases", phase2:"Accélération B2", phase3:"Poussée C1", phase4:"Mode Guerre d'Examen"},
+    daysWord: "Jours",
+    legendLabels: {phase1:"Bases", phase2:"Accélération B2", phase3:"Poussée C1", phase4:"Guerre d'examen"},
+    calTitle: "Calendrier des 90 jours",
+    calHint: "Cliquez un jour pour voir le programme détaillé",
+    weekdays: ["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"],
+    closeAria: "Fermer",
+    skillsTitle: "Progression par compétence",
+    skillsHint: "Basé sur les blocs cochés jusqu'à aujourd'hui",
+    notebookTitle: "Le carnet d'erreurs",
+    notebookHint: "Non négociable — chaque faute devient une leçon",
+    noteCats: {
+      listening: {label:"Erreurs d'écoute", ph:"contractions, liaisons, expressions manquées…"},
+      reading:   {label:"Erreurs de lecture", ph:"vocabulaire, inférence, distracteurs…"},
+      speaking:  {label:"Erreurs à l'oral", ph:"grammaire, prononciation, hésitations…"},
+      writing:   {label:"Erreurs à l'écrit", ph:"connecteurs, accords, structure…"}
+    },
+    cycle: ["APPRENDRE","COMPRENDRE","PRODUIRE","ÊTRE CORRIGÉ","RÉPÉTER"],
+    hours: [["1.5h","écoute"],["1.5h","oral"],["1h","lecture"],["1h","écrit"],["1h","grammaire"],["1h","vocab/prononciation"]],
+    footNote: "Choisissez un seul examen (TEF ou TCF) tôt et entraînez-vous spécifiquement pour lui — les formats ne sont pas identiques.",
+    savedFlag: "Enregistré ✓",
+    skillLabels: {grammar:"Grammaire", vocab:"Vocabulaire", listening:"Écoute", reading:"Lecture", speaking:"Oral", writing:"Écrit"},
+    blockLabels: {immersion:"Immersion", vocab:"Vocabulaire + prononciation", grammar:"Grammaire", listening:"Atelier d'écoute", reading:"Lecture", speaking:"Expression orale", writing:"Expression écrite", examblock:"Bloc examen", errorlog:"Carnet d'erreurs + révision", review:"Révision grammaire & vocab", practice:"Pratique libre"},
+    timeLabels: {morning:"Matin", midday:"Midi", afternoon:"Après-midi"},
+    dayPanelTitle: "Jour",
+    dayPanelAria: "Programme du jour",
+    connectorsDeckName: "Connecteurs logiques",
+    fcTitle: "Fiches & Quiz",
+    fcHint: "Révisez le vocabulaire par thème, puis testez-vous",
+    fcDeckAria: "Choisir un thème",
+    fcEmpty: "Choisissez un thème ci-dessus pour commencer",
+    fcFlipHint: "Touchez la carte pour voir la traduction",
+    listenAria: "Écouter la prononciation",
+    fcCounter: "Carte",
+    fcPrev: "◀ Précédent",
+    fcNext: "Suivant ▶",
+    fcShuffle: "🔀 Mélanger",
+    fcStartQuiz: "Lancer le quiz",
+    fcBest: "Meilleur score",
+    quizProgress: "Question",
+    quizCorrect: "Bonne réponse ! ✓",
+    quizWrongPrefix: "Faux — la bonne réponse était :",
+    quizNext: "Question suivante",
+    quizSeeResults: "Voir les résultats",
+    quizResultsTitle: "Résultats",
+    quizScoreOf: "sur",
+    quizRetake: "🔁 Recommencer",
+    quizBack: "← Retour aux fiches",
+    quizPromptFr2En: "Que signifie « {w} » ?",
+    quizPromptEn2Fr: "Comment dit-on « {w} » en français ?",
+    tcf: {
+      title: "Calculateur de niveau TCF Canada",
+      hint: "Entrez votre score brut pour chaque compétence — chacune est notée indépendamment, sans moyenne.",
+      skillNames: { listening:"Écoute (CO)", reading:"Lecture (CE)", speaking:"Oral (EO)", writing:"Écrit (EE)" },
+      scoreRangeHint: { listening:"Échelle : 0–699", reading:"Échelle : 0–699", speaking:"Échelle : 0–20", writing:"Échelle : 0–20" },
+      scorePh: "Score",
+      notEntered: "—",
+      belowCefr: "< B2",
+      belowNclc: "< NCLC 7",
+      ptsWord: "pts",
+      tableHeaders: { skill:"Compétence", score:"Score TCF", cefr:"CECR", nclc:"NCLC/CLB", points:"Points" },
+      totalRow: "TOTAL",
+      overallTitle: "Résultat global",
+      lowestLevel: "Niveau NCLC le plus bas",
+      highestLevel: "Niveau NCLC le plus élevé",
+      allFourPrefix: "atteint dans les 4 compétences",
+      yes: "OUI",
+      no: "NON",
+      totalPointsLabel: "Total des points linguistiques TCF",
+      outOf24: "sur 24",
+      fillAllHint: "Entrez les 4 scores ci-dessus pour voir le résultat global."
+    }
+  },
+  en: {
+    locale: "en-US",
+    heroTitle: "My French Plan 🥐",
+    heroSub: "90 Days to NCLC 9",
+    heroTag: "An intensive 7h/day program toward TEF/TCF Canada — listening, reading, speaking and writing, all pushed toward C1 level.",
+    examAria: "Exam choice",
+    langAria: "Interface language",
+    startLabel: "Day 1:",
+    statToday: "Today",
+    statPhase: "Current phase",
+    statStreak: "Current streak",
+    statProgress: "Overall progress",
+    notStarted: "Not started yet",
+    planDone: "Plan complete! 🎉",
+    dayWord: "Day",
+    dayUnit: "day",
+    reality: "Honest reality check: aiming for NCLC 9 in all four skills from a standing start in 90 days is extremely ambitious. It's achievable with 6–8h/day of focused work, but nothing guarantees it — so aim above the threshold in your practice tests, not right on it.",
+    phaseNames: {phase1:"Build the Basics", phase2:"B2 Acceleration", phase3:"C1 Push", phase4:"Exam War Mode"},
+    daysWord: "Days",
+    legendLabels: {phase1:"Basics", phase2:"B2 Acceleration", phase3:"C1 Push", phase4:"Exam war mode"},
+    calTitle: "90-Day Calendar",
+    calHint: "Click a day to see the detailed schedule",
+    weekdays: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+    closeAria: "Close",
+    skillsTitle: "Progress by skill",
+    skillsHint: "Based on blocks checked off so far",
+    notebookTitle: "The mistake notebook",
+    notebookHint: "Non-negotiable — every mistake becomes a lesson",
+    noteCats: {
+      listening: {label:"Listening mistakes", ph:"contractions, liaisons, missed expressions…"},
+      reading:   {label:"Reading mistakes", ph:"vocabulary, inference, distractors…"},
+      speaking:  {label:"Speaking mistakes", ph:"grammar, pronunciation, hesitations…"},
+      writing:   {label:"Writing mistakes", ph:"connectors, agreement, structure…"}
+    },
+    cycle: ["LEARN","UNDERSTAND","PRODUCE","GET CORRECTED","REPEAT"],
+    hours: [["1.5h","listening"],["1.5h","speaking"],["1h","reading"],["1h","writing"],["1h","grammar"],["1h","vocab/pronunciation"]],
+    footNote: "Pick a single exam (TEF or TCF) early and train specifically for it — their formats are not identical.",
+    savedFlag: "Saved ✓",
+    skillLabels: {grammar:"Grammar", vocab:"Vocabulary", listening:"Listening", reading:"Reading", speaking:"Speaking", writing:"Writing"},
+    blockLabels: {immersion:"Immersion listening", vocab:"Vocabulary + pronunciation", grammar:"Grammar", listening:"Listening lab", reading:"Reading", speaking:"Speaking", writing:"Writing", examblock:"Exam block", errorlog:"Error log + vocab review", review:"Grammar & vocab review", practice:"Free practice"},
+    timeLabels: {morning:"Morning", midday:"Midday", afternoon:"Afternoon"},
+    dayPanelTitle: "Day",
+    dayPanelAria: "Day schedule for",
+    connectorsDeckName: "Logical connectors",
+    fcTitle: "Flashcards & Quiz",
+    fcHint: "Review vocabulary by theme, then test yourself",
+    fcDeckAria: "Choose a theme",
+    fcEmpty: "Choose a theme above to get started",
+    fcFlipHint: "Tap the card to see the translation",
+    listenAria: "Listen to the pronunciation",
+    fcCounter: "Card",
+    fcPrev: "◀ Previous",
+    fcNext: "Next ▶",
+    fcShuffle: "🔀 Shuffle",
+    fcStartQuiz: "Start quiz",
+    fcBest: "Best score",
+    quizProgress: "Question",
+    quizCorrect: "Correct! ✓",
+    quizWrongPrefix: "Incorrect — the right answer was:",
+    quizNext: "Next question",
+    quizSeeResults: "See results",
+    quizResultsTitle: "Results",
+    quizScoreOf: "out of",
+    quizRetake: "🔁 Retake quiz",
+    quizBack: "← Back to flashcards",
+    quizPromptFr2En: "What does “{w}” mean?",
+    quizPromptEn2Fr: "How do you say “{w}” in French?",
+    tcf: {
+      title: "TCF Canada Grading Calculator",
+      hint: "Enter your raw score for each skill — each one is graded independently, with no averaging.",
+      skillNames: { listening:"Listening (CO)", reading:"Reading (CE)", speaking:"Speaking (EO)", writing:"Writing (EE)" },
+      scoreRangeHint: { listening:"Scale: 0–699", reading:"Scale: 0–699", speaking:"Scale: 0–20", writing:"Scale: 0–20" },
+      scorePh: "Score",
+      notEntered: "—",
+      belowCefr: "< B2",
+      belowNclc: "< NCLC 7",
+      ptsWord: "pts",
+      tableHeaders: { skill:"Skill", score:"TCF Score", cefr:"CEFR", nclc:"NCLC/CLB", points:"Points" },
+      totalRow: "TOTAL",
+      overallTitle: "Overall Result",
+      lowestLevel: "Lowest NCLC level",
+      highestLevel: "Highest NCLC level",
+      allFourPrefix: "achieved in all four skills",
+      yes: "YES",
+      no: "NO",
+      totalPointsLabel: "Total TCF language points",
+      outOf24: "out of 24",
+      fillAllHint: "Enter all 4 scores above to see the overall result."
+    }
+  }
+};
+function T(lang){ return DICT[lang] || DICT.fr; }
+
+/* ---------------- date helpers ---------------- */
+function parseISO(s){ var p=s.split('-').map(Number); return new Date(p[0],p[1]-1,p[2]); }
+function addDays(d,n){ var r=new Date(d); r.setDate(r.getDate()+n); return r; }
+function startOfDay(d){ var r=new Date(d); r.setHours(0,0,0,0); return r; }
+function dateForDay(startISO,dayNum){ return addDays(parseISO(startISO),dayNum-1); }
+function diffDaysFrom(startISO,other){ var a=startOfDay(parseISO(startISO)), b=startOfDay(other); return Math.round((b-a)/86400000); }
+
+/* ---------------- plan content by day ---------------- */
+function phaseOf(day, lang){
+  var t = T(lang);
+  if(day<=30) return {n:1, cls:"p1", key:"phase1", name:t.phaseNames.phase1, range:t.daysWord+" 1–30"};
+  if(day<=60) return {n:2, cls:"p2", key:"phase2", name:t.phaseNames.phase2, range:t.daysWord+" 31–60"};
+  if(day<=75) return {n:3, cls:"p3", key:"phase3", name:t.phaseNames.phase3, range:t.daysWord+" 61–75"};
+  return {n:4, cls:"p4", key:"phase4", name:t.phaseNames.phase4, range:t.daysWord+" 76–90"};
+}
+function weekOf(day){ return Math.ceil(day/7); }
+function grammarFor(day, lang){
+  var w=weekOf(day);
+  if(lang==='en'){
+    if(w<=2) return "Articles, gender, pronouns, être/avoir/aller/faire + key irregulars, present tense, negation, questions";
+    if(w<=4) return "Passé composé, imparfait, plus-que-parfait, futur simple/proche, conditional, direct/indirect object pronouns, y/en";
+    if(w<=6) return "Subjunctive, si-clauses, passive voice, reported speech, cause/consequence/concession";
+    if(w<=8) return "Complex sentence construction — spontaneous production of advanced structures";
+    return "Error correction — every mistake in your log becomes a lesson";
+  }
+  if(w<=2) return "Articles, genre, pronoms, être/avoir/aller/faire + irréguliers clés, présent, négation, questions";
+  if(w<=4) return "Passé composé, imparfait, plus-que-parfait, futur simple/proche, conditionnel, pronoms COD/COI, y/en";
+  if(w<=6) return "Subjonctif, phrases avec si, voix passive, discours rapporté, cause/conséquence/concession";
+  if(w<=8) return "Construction de phrases complexes — production spontanée de structures avancées";
+  return "Correction d'erreurs — chaque faute de votre carnet devient une leçon";
+}
+function vocabFor(day, lang){
+  var pool = VOCAB_TOPICS[lang] || VOCAB_TOPICS.fr;
+  var topic = pool[(day-1)%pool.length];
+  return lang==='en'
+    ? "Theme: " + topic + " — 30–40 words/expressions, learned in full sentences"
+    : "Thème : " + topic + " — 30–40 mots/expressions, appris en phrases";
+}
+function readingFor(day, lang){
+  if(lang==='en'){
+    if(day<=30) return "Simple texts — short news items, ads, notices, emails";
+    if(day<=60) return "Newspapers, opinion pieces, interviews, social issues";
+    return "C1 level — editorials, government, economic and scientific texts";
+  }
+  if(day<=30) return "Textes simples — actualités courtes, annonces, notices, courriels";
+  if(day<=60) return "Journaux, articles d'opinion, entretiens, sujets de société";
+  return "Niveau C1 — éditoriaux, textes gouvernementaux, économiques et scientifiques";
+}
+function writingFor(day, lang){
+  var w=weekOf(day);
+  if(lang==='en'){
+    if(w<=2) return "Structured response, 80–120 words";
+    if(w<=4) return "Structured response, 120–180 words";
+    if(w<=6) return "Structured response, 180–250 words";
+    return "Full exam-style response, timed";
+  }
+  if(w<=2) return "Réponse structurée, 80–120 mots";
+  if(w<=4) return "Réponse structurée, 120–180 mots";
+  if(w<=6) return "Réponse structurée, 180–250 mots";
+  return "Réponse complète style examen, sous contrainte de temps";
+}
+function speakingFor(day, lang){
+  var pool = SPEAKING_PROMPTS[lang] || SPEAKING_PROMPTS.fr;
+  var prompt = pool[(day-1)%pool.length];
+  return lang==='en'
+    ? "Today's topic: \u201c" + prompt + "\u201d — state position → argument → example → concession → conclusion"
+    : "Sujet du jour : « " + prompt + " » — position → argument → exemple → concession → conclusion";
+}
+function examLabel(state){ return state.examTarget || "TEF"; }
+function examBlockFor(day, weekdayJs, state, lang){
+  var ex = examLabel(state);
+  if(lang==='en'){
+    switch(weekdayJs){
+      case 1: return ex+" — Listening section, timed practice";
+      case 2: return ex+" — Reading section, timed practice";
+      case 3: return ex+" — Speaking simulation (both tasks)";
+      case 4: return ex+" — Writing simulation, timed";
+      case 5: return ex+" — Listening + Reading combo";
+      case 6: return ex+" — full mini mock exam (4 skills)";
+      default: return ex+" — free review";
+    }
+  }
+  switch(weekdayJs){
+    case 1: return ex+" — section Écoute, entraînement chronométré";
+    case 2: return ex+" — section Lecture, entraînement chronométré";
+    case 3: return ex+" — simulation Expression orale (les deux tâches)";
+    case 4: return ex+" — simulation Expression écrite, chronométrée";
+    case 5: return ex+" — combo Écoute + Lecture";
+    case 6: return ex+" — mini examen blanc complet (4 compétences)";
+    default: return ex+" — révision libre";
+  }
+}
+function detailFor(blockId, day, weekdayJs, state, lang){
+  if(lang==='en'){
+    switch(blockId){
+      case "immersion": return "Native audio, no subtitles — don't translate, let your ear adjust to real speed";
+      case "vocab": return vocabFor(day, lang);
+      case "grammar": return grammarFor(day, lang);
+      case "listening": return "Intensive listening (dictation) → natural listening → timed "+examLabel(state)+" drill + error analysis";
+      case "reading": return readingFor(day, lang);
+      case "speaking": return speakingFor(day, lang);
+      case "writing": return writingFor(day, lang);
+      case "examblock": return examBlockFor(day, weekdayJs, state, lang);
+      case "errorlog": return "Log every mistake (listening / reading / speaking / writing) and rewrite it correctly";
+      case "review": return "Go back over this week's grammar points and vocabulary";
+      case "practice": return "Free, light practice — no new material, consolidate what you've learned";
+      default: return "";
+    }
+  }
+  switch(blockId){
+    case "immersion": return "Audio natif sans sous-titres — ne traduisez pas, laissez l'oreille s'habituer au débit réel";
+    case "vocab": return vocabFor(day, lang);
+    case "grammar": return grammarFor(day, lang);
+    case "listening": return "Écoute intensive (dictée) → écoute naturelle → drill "+examLabel(state)+" chronométré + analyse des erreurs";
+    case "reading": return readingFor(day, lang);
+    case "speaking": return speakingFor(day, lang);
+    case "writing": return writingFor(day, lang);
+    case "examblock": return examBlockFor(day, weekdayJs, state, lang);
+    case "errorlog": return "Consignez chaque erreur (écoute / lecture / oral / écrit) et reformulez-la correctement";
+    case "review": return "Repassez les points de grammaire et le vocabulaire de la semaine";
+    case "practice": return "Pratique libre et légère — pas de nouvelle matière, consolidez ce qui est acquis";
+    default: return "";
+  }
+}
+function blocksForWeekday(weekdayJs){ return weekdayJs===0 ? BLOCKS_SUNDAY : BLOCKS_WEEKDAY; }
+
+/* ---------------- state ---------------- */
+function defaultState(){
+  return { startDate: "2026-09-12", examTarget: "TEF", lang: "fr", tasks: {}, notes: { listening:"", reading:"", speaking:"", writing:"" }, quizScores: {}, tcfScores: { listening:null, reading:null, speaking:null, writing:null } };
+}
+function loadInitialState(){
+  try{
+    var el = document.getElementById('state-json');
+    if(el && el.textContent.trim()){
+      var parsed = JSON.parse(el.textContent);
+      var d = defaultState();
+      return Object.assign(d, parsed, {
+        notes: Object.assign(d.notes, parsed.notes||{}),
+        quizScores: Object.assign(d.quizScores, parsed.quizScores||{}),
+        tcfScores: Object.assign(d.tcfScores, parsed.tcfScores||{})
+      });
+    }
+  }catch(e){}
+  return defaultState();
+}
+
+var STATE = loadInitialState();
+var uiOpenDay = null;
+var artifactApi = null;
+var saveTimer = null;
+
+/* ephemeral flashcard/quiz UI state — not persisted, resets on reload */
+var uiDeckKey = null;
+var uiCardOrder = [];
+var uiCardIndex = 0;
+var uiCardFlipped = false;
+var uiQuiz = null; // {questions, idx, score, answered, selected, finished}
+
+function shuffleArr(arr){
+  var a = arr.slice();
+  for(var i=a.length-1; i>0; i--){
+    var j = Math.floor(Math.random()*(i+1));
+    var tmp = a[i]; a[i]=a[j]; a[j]=tmp;
+  }
+  return a;
+}
+/* ---------------- text-to-speech: prefer a feminine voice ---------------- */
+var cachedVoices = [];
+function refreshVoices(){
+  try{ cachedVoices = window.speechSynthesis.getVoices() || []; }catch(e){ cachedVoices = []; }
+}
+try{
+  if('speechSynthesis' in window){
+    refreshVoices();
+    window.speechSynthesis.addEventListener ? window.speechSynthesis.addEventListener('voiceschanged', refreshVoices) : (window.speechSynthesis.onvoiceschanged = refreshVoices);
+  }
+}catch(e){}
+var FEMALE_VOICE_HINTS = [
+  'female','femme','féminin','feminin',
+  'amelie','amélie','audrey','céline','celine','chantal','charlotte','marie','julie','elise','élise','virginie','claire','léa','lea','manon','pauline','hortense','caroline','flora','emmanuelle',
+  'victoria','samantha','karen','moira','tessa','fiona','zira','susan','hazel','salli','joanna','kimberly','kendra','ivy','emma','ava','allison','sara','sarah','anna','ellen','nicky','vicki','paulina','monica','veena','serena','martha','catherine','linda','heather','olivia','aria','jenny','michelle'
+];
+var MALE_VOICE_HINTS = [
+  'male','homme','masculin',
+  'thomas','nicolas','henri','guillaume','paul','antoine','mathieu',
+  'daniel','george','david','mark','fred','alex','aaron','james','ryan','guy','brian','eric','justin','liam','tom','christopher','sean'
+];
+function pickVoice(langCode){
+  if(!cachedVoices.length) refreshVoices();
+  if(!cachedVoices.length) return null;
+  var wantLang = (langCode || 'fr-FR').toLowerCase();
+  var langPrefix = wantLang.split('-')[0];
+  var sameLang = cachedVoices.filter(function(v){ return v.lang && v.lang.toLowerCase().indexOf(langPrefix) === 0; });
+  /* Never fall back to a voice in the wrong language just because its name sounds female —
+     an English voice reading French text pronounces every word like English. If this device
+     has no French voice installed, leave the utterance's own `lang` tag to do its best rather
+     than force a wrong-language voice onto it. */
+  if(!sameLang.length) return null;
+  function scoreVoice(v){
+    var name = (v.name || '').toLowerCase();
+    if(FEMALE_VOICE_HINTS.some(function(h){ return name.indexOf(h) !== -1; })) return 2;
+    if(MALE_VOICE_HINTS.some(function(h){ return name.indexOf(h) !== -1; })) return 0;
+    return 1;
+  }
+  var best = sameLang[0], bestScore = -1;
+  sameLang.forEach(function(v){
+    var s = scoreVoice(v);
+    if(s > bestScore){ bestScore = s; best = v; }
+  });
+  return best || null;
+}
+function speak(text, langCode){
+  try{
+    if(!text || !('speechSynthesis' in window)) return;
+    if(!cachedVoices.length) refreshVoices();
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = langCode || 'fr-FR';
+    u.rate = 0.92;
+    u.pitch = 1.05;
+    var v = pickVoice(langCode);
+    if(v) u.voice = v;
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+function buildQuiz(deck, count){
+  var pool = shuffleArr(deck.cards);
+  var chosen = pool.slice(0, Math.min(count, pool.length));
+  return chosen.map(function(card){
+    var dir = Math.random() < 0.5 ? 'fr2en' : 'en2fr';
+    var correct = dir==='fr2en' ? card.en : card.fr;
+    var promptWord = dir==='fr2en' ? card.fr : card.en;
+    var distractorPool = deck.cards.filter(function(c){ return c!==card; });
+    var distractors = shuffleArr(distractorPool).slice(0,3).map(function(c){ return dir==='fr2en' ? c.en : c.fr; });
+    var choices = shuffleArr([correct].concat(distractors));
+    return { dir: dir, promptWord: promptWord, choices: choices, correct: correct };
+  });
+}
+
+/* ---------------- derived stats (language-neutral) ---------------- */
+function isDayDone(state, day){
+  var wd = dateForDay(state.startDate, day).getDay();
+  var blocks = blocksForWeekday(wd);
+  var done = state.tasks[day] || [];
+  return blocks.every(function(b){ return done.indexOf(b.id) !== -1; });
+}
+function dayFraction(state, day){
+  var wd = dateForDay(state.startDate, day).getDay();
+  var blocks = blocksForWeekday(wd);
+  var done = state.tasks[day] || [];
+  var n = 0; blocks.forEach(function(b){ if(done.indexOf(b.id)!==-1) n++; });
+  return n + "/" + blocks.length;
+}
+function currentDayIndex(state){
+  var d = diffDaysFrom(state.startDate, new Date()) + 1;
+  return d;
+}
+function computeStreak(state){
+  var idx = currentDayIndex(state);
+  var start = Math.min(idx, TOTAL_DAYS);
+  if(start < 1) return 0;
+  var streak = 0;
+  for(var day = start; day >= 1; day--){
+    if(isDayDone(state, day)){ streak++; } else { break; }
+  }
+  return streak;
+}
+function computeOverallPct(state){
+  var idx = Math.max(0, Math.min(currentDayIndex(state), TOTAL_DAYS));
+  if(idx===0) return 0;
+  var totalBlocks=0, doneBlocks=0;
+  for(var day=1; day<=idx; day++){
+    var wd = dateForDay(state.startDate, day).getDay();
+    var blocks = blocksForWeekday(wd);
+    var done = state.tasks[day] || [];
+    totalBlocks += blocks.length;
+    blocks.forEach(function(b){ if(done.indexOf(b.id)!==-1) doneBlocks++; });
+  }
+  return totalBlocks ? Math.round(doneBlocks/totalBlocks*100) : 0;
+}
+function computeSkillProgress(state){
+  var idx = Math.max(0, Math.min(currentDayIndex(state), TOTAL_DAYS));
+  var res = {};
+  SKILL_CATS.forEach(function(s){ res[s.id] = {done:0,total:0}; });
+  for(var day=1; day<=idx; day++){
+    var wd = dateForDay(state.startDate, day).getDay();
+    if(wd===0) continue; // Sunday not counted toward fixed skill categories
+    var done = state.tasks[day] || [];
+    SKILL_CATS.forEach(function(s){
+      res[s.id].total++;
+      if(done.indexOf(s.id)!==-1) res[s.id].done++;
+    });
+  }
+  return res;
+}
+
+/* ---------------- TCF Canada grading system ---------------- */
+var TCF_SCALES = {
+  listening: { min:0, max:699, tiers:[
+    {lo:458,hi:502, cefr:'B2',  nclc:7,  pts:3},
+    {lo:503,hi:522, cefr:'B2+', nclc:8,  pts:4},
+    {lo:523,hi:548, cefr:'C1',  nclc:9,  pts:5},
+    {lo:549,hi:699, cefr:'C2',  nclc:10, pts:6}
+  ]},
+  reading: { min:0, max:699, tiers:[
+    {lo:453,hi:498, cefr:'B2',  nclc:7,  pts:3},
+    {lo:499,hi:523, cefr:'B2+', nclc:8,  pts:4},
+    {lo:524,hi:548, cefr:'C1',  nclc:9,  pts:5},
+    {lo:549,hi:699, cefr:'C2',  nclc:10, pts:6}
+  ]},
+  speaking: { min:0, max:20, tiers:[
+    {lo:10,hi:11, cefr:'B2',  nclc:7,  pts:3},
+    {lo:12,hi:13, cefr:'B2+', nclc:8,  pts:4},
+    {lo:14,hi:15, cefr:'C1',  nclc:9,  pts:5},
+    {lo:16,hi:20, cefr:'C2',  nclc:10, pts:6}
+  ]},
+  writing: { min:0, max:20, tiers:[
+    {lo:10,hi:11, cefr:'B2',  nclc:7,  pts:3},
+    {lo:12,hi:13, cefr:'B2+', nclc:8,  pts:4},
+    {lo:14,hi:15, cefr:'C1',  nclc:9,  pts:5},
+    {lo:16,hi:20, cefr:'C2',  nclc:10, pts:6}
+  ]}
+};
+var TCF_SKILL_ORDER = ["listening","reading","speaking","writing"];
+
+/* Grades ONE competency in isolation against its own table — never averaged with the others. */
+function gradeTcfSkill(skillKey, rawScore){
+  if(rawScore===null || rawScore===undefined || rawScore==='' || isNaN(rawScore)) return null;
+  var score = Number(rawScore);
+  var scale = TCF_SCALES[skillKey];
+  for(var i=0;i<scale.tiers.length;i++){
+    var tier = scale.tiers[i];
+    if(score>=tier.lo && score<=tier.hi){
+      return { score:score, cefr:tier.cefr, nclcNum:tier.nclc, pts:tier.pts, below:false };
+    }
+  }
+  if(score < scale.tiers[0].lo) return { score:score, cefr:null, nclcNum:6, pts:0, below:true };
+  var last = scale.tiers[scale.tiers.length-1];
+  return { score:score, cefr:last.cefr, nclcNum:last.nclc, pts:last.pts, below:false };
+}
+/* Sums the 4 independent grades and checks NCLC-in-all-four thresholds ("at least" semantics). */
+function computeTcfResult(scores){
+  scores = scores || {};
+  var perSkill = {}, total = 0, allGraded = true;
+  TCF_SKILL_ORDER.forEach(function(k){
+    var g = gradeTcfSkill(k, scores[k]);
+    perSkill[k] = g;
+    if(g){ total += g.pts; } else { allGraded = false; }
+  });
+  var lowest = null, highest = null;
+  var achieved = {7:false, 8:false, 9:false, 10:false};
+  if(allGraded){
+    var nums = TCF_SKILL_ORDER.map(function(k){ return perSkill[k].nclcNum; });
+    lowest = Math.min.apply(null, nums);
+    highest = Math.max.apply(null, nums);
+    [7,8,9,10].forEach(function(th){ achieved[th] = nums.every(function(n){ return n>=th; }); });
+  }
+  return { perSkill:perSkill, total:total, allGraded:allGraded, lowest:lowest, highest:highest, achieved:achieved };
+}
+function tcfNclcLabel(nclcNum, t){
+  if(nclcNum===null || nclcNum===undefined) return t.tcf.notEntered;
+  if(nclcNum===6) return t.tcf.belowNclc;
+  return "NCLC " + nclcNum;
+}
+function tcfCefrLabel(g, t){
+  if(!g) return t.tcf.notEntered;
+  if(g.below) return t.tcf.belowCefr;
+  return g.cefr;
+}
+function renderTcfBadges(skillKey, g, t){
+  var tt = t.tcf;
+  return '<span class="tcf-badge cefr">'+esc(tcfCefrLabel(g,t))+'</span>'
+    +'<span class="tcf-badge nclc">'+esc(tcfNclcLabel(g?g.nclcNum:null,t))+'</span>'
+    +'<span class="tcf-badge pts">'+(g?g.pts:0)+' '+esc(tt.ptsWord)+'</span>';
+}
+function renderTcfProgression(skillKey, g){
+  var scale = TCF_SCALES[skillKey];
+  return '<div class="tcf-progress-track">'+scale.tiers.map(function(tier){
+    var active = !!(g && !g.below && g.nclcNum===tier.nclc);
+    return '<div class="tcf-seg'+(active?' active':'')+'"><div class="tcf-seg-lvl">NCLC '+tier.nclc+'</div><div class="tcf-seg-pts">'+tier.pts+'pt'+(tier.pts>1?'s':'')+'</div></div>';
+  }).join('')+'</div>';
+}
+function renderTcfSkillCard(skillKey, scores, lang){
+  var t = T(lang), tt = t.tcf;
+  var scale = TCF_SCALES[skillKey];
+  var g = gradeTcfSkill(skillKey, scores[skillKey]);
+  var val = (scores[skillKey]===null || scores[skillKey]===undefined) ? '' : scores[skillKey];
+  return ''
+  +'<div class="tcf-skill-card">'
+    +'<div class="tcf-skill-head"><span class="tcf-skill-name">'+esc(tt.skillNames[skillKey])+'</span><span class="tcf-skill-scale">'+esc(tt.scoreRangeHint[skillKey])+'</span></div>'
+    +'<div class="tcf-input-row">'
+      +'<input type="number" inputmode="numeric" class="tcf-score-input" min="'+scale.min+'" max="'+scale.max+'" step="1" placeholder="'+esc(tt.scorePh)+'" value="'+esc(val)+'" data-action="tcf-score" data-skill="'+skillKey+'">'
+      +'<span class="tcf-badges" id="tcf-badges-'+skillKey+'">'+renderTcfBadges(skillKey,g,t)+'</span>'
+    +'</div>'
+    +'<div id="tcf-prog-'+skillKey+'">'+renderTcfProgression(skillKey,g)+'</div>'
+  +'</div>';
+}
+function renderTcfTableBody(result, t){
+  var tt = t.tcf;
+  var rows = TCF_SKILL_ORDER.map(function(k){
+    var g = result.perSkill[k];
+    var raw = STATE.tcfScores ? STATE.tcfScores[k] : null;
+    var scoreDisp = (raw===null || raw===undefined) ? tt.notEntered : raw;
+    return '<tr><td>'+esc(tt.skillNames[k])+'</td><td class="tabular">'+esc(scoreDisp)+'</td><td>'+esc(tcfCefrLabel(g,t))+'</td><td>'+esc(tcfNclcLabel(g?g.nclcNum:null,t))+'</td><td class="tabular">'+(g?g.pts:'—')+'</td></tr>';
+  }).join('');
+  return rows + '<tr class="tcf-total-row"><td>'+esc(tt.totalRow)+'</td><td></td><td></td><td></td><td class="tabular">'+result.total+' / 24</td></tr>';
+}
+function renderTcfOverall(result, t){
+  var tt = t.tcf;
+  var inner;
+  if(result.allGraded){
+    var thresholdRows = [7,8,9,10].map(function(th){
+      var yes = result.achieved[th];
+      var isNine = th===9;
+      return '<div class="tcf-overall-row'+(isNine?' highlight':'')+'">'
+        +'<span>NCLC '+th+' — '+esc(tt.allFourPrefix)+(isNine?' ★':'')+'</span>'
+        +'<span class="tcf-badge-yn '+(yes?'yes':'no')+'">'+(yes?esc(tt.yes):esc(tt.no))+'</span>'
+      +'</div>';
+    }).join('');
+    inner = ''
+      +'<h3>'+esc(tt.overallTitle)+'</h3>'
+      +'<div class="tcf-overall-row"><span>'+esc(tt.lowestLevel)+'</span><span class="tabular">'+esc(tcfNclcLabel(result.lowest,t))+'</span></div>'
+      +'<div class="tcf-overall-row"><span>'+esc(tt.highestLevel)+'</span><span class="tabular">'+esc(tcfNclcLabel(result.highest,t))+'</span></div>'
+      +thresholdRows
+      +'<div class="tcf-overall-row total"><span>'+esc(tt.totalPointsLabel)+'</span><span class="tabular">'+result.total+' '+esc(tt.outOf24)+'</span></div>';
+  } else {
+    inner = '<div class="tcf-overall-empty">'+esc(tt.fillAllHint)+'</div>';
+  }
+  return '<div class="tcf-overall" id="tcf-overall-block">'+inner+'</div>';
+}
+function renderTcfCalculator(state){
+  var lang = state.lang || 'fr';
+  var t = T(lang), tt = t.tcf;
+  var scores = state.tcfScores || {};
+  var result = computeTcfResult(scores);
+  var cards = TCF_SKILL_ORDER.map(function(k){ return renderTcfSkillCard(k, scores, lang); }).join('');
+  return ''
+  +'<div class="section">'
+    +'<div class="section-head"><h2>'+esc(tt.title)+'</h2><span class="hint">'+esc(tt.hint)+'</span></div>'
+    +'<div class="tcf-grid">'+cards+'</div>'
+    +'<div class="tcf-table-wrap"><table class="tcf-table"><thead><tr>'
+      +'<th>'+esc(tt.tableHeaders.skill)+'</th><th>'+esc(tt.tableHeaders.score)+'</th><th>'+esc(tt.tableHeaders.cefr)+'</th><th>'+esc(tt.tableHeaders.nclc)+'</th><th>'+esc(tt.tableHeaders.points)+'</th>'
+    +'</tr></thead><tbody id="tcf-table-body">'+renderTcfTableBody(result,t)+'</tbody></table></div>'
+    +renderTcfOverall(result, t)
+  +'</div>';
+}
+/* Partial DOM refresh (no full re-render) so the number inputs keep focus while typing. */
+function updateTcfUI(){
+  var lang = STATE.lang || 'fr';
+  var t = T(lang);
+  var scores = STATE.tcfScores || {};
+  var result = computeTcfResult(scores);
+  TCF_SKILL_ORDER.forEach(function(k){
+    var g = result.perSkill[k];
+    var badgeEl = document.getElementById('tcf-badges-'+k);
+    if(badgeEl) badgeEl.innerHTML = renderTcfBadges(k, g, t);
+    var progEl = document.getElementById('tcf-prog-'+k);
+    if(progEl) progEl.innerHTML = renderTcfProgression(k, g);
+  });
+  var tbody = document.getElementById('tcf-table-body');
+  if(tbody) tbody.innerHTML = renderTcfTableBody(result, t);
+  var overallEl = document.getElementById('tcf-overall-block');
+  if(overallEl) overallEl.outerHTML = renderTcfOverall(result, t);
+}
+
+/* ---------------- render: body content ---------------- */
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function renderHero(state){
+  var lang = state.lang || 'fr';
+  var t = T(lang);
+  var idx = currentDayIndex(state);
+  var dayLabel = idx < 1 ? t.notStarted : (idx > TOTAL_DAYS ? t.planDone : t.dayWord+" "+idx);
+  var ph = phaseOf(Math.max(1, Math.min(idx, TOTAL_DAYS)), lang);
+  var streak = computeStreak(state);
+  var pct = computeOverallPct(state);
+  return ''
+  +'<section class="hero">'
+    +'<div class="hero-top">'
+      +'<div><h1>'+t.heroTitle+'</h1>'
+      +'<div class="sub">'+esc(t.heroSub)+'</div>'
+      +'<p class="tag">'+esc(t.heroTag)+'</p></div>'
+      +'<div class="controls">'
+        +'<div class="exam-toggle" role="group" aria-label="'+esc(t.examAria)+'">'
+          +'<button type="button" data-action="set-exam" data-exam="TEF" class="'+(state.examTarget==='TEF'?'active':'')+'">TEF Canada</button>'
+          +'<button type="button" data-action="set-exam" data-exam="TCF" class="'+(state.examTarget==='TCF'?'active':'')+'">TCF Canada</button>'
+        +'</div>'
+        +'<div class="exam-toggle" role="group" aria-label="'+esc(t.langAria)+'">'
+          +'<button type="button" data-action="set-lang" data-lang="fr" class="'+(lang==='fr'?'active':'')+'">FR</button>'
+          +'<button type="button" data-action="set-lang" data-lang="en" class="'+(lang==='en'?'active':'')+'">EN</button>'
+        +'</div>'
+      +'</div>'
+    +'</div>'
+    +'<div class="start-row"><label for="start-date-input">'+esc(t.startLabel)+'</label><input id="start-date-input" type="date" value="'+esc(state.startDate)+'" data-action="set-start"></div>'
+    +'<div class="stats">'
+      +'<div class="stat"><div class="k">'+esc(t.statToday)+'</div><div class="v tabular">'+dayLabel+(idx>=1&&idx<=TOTAL_DAYS?' <small>/ 90</small>':'')+'</div></div>'
+      +'<div class="stat phase"><div class="k">'+esc(t.statPhase)+'</div><div class="v">'+esc(ph.name)+'</div></div>'
+      +'<div class="stat"><div class="k">'+esc(t.statStreak)+'</div><div class="v tabular">🔥 '+streak+' <small>'+esc(t.dayUnit)+(streak===1?'':'s')+'</small></div></div>'
+      +'<div class="stat"><div class="k">'+esc(t.statProgress)+'</div><div class="v tabular">'+pct+'<small>%</small></div></div>'
+    +'</div>'
+    +'<div class="callout"><span class="ic">💡</span><span>'+esc(t.reality)+'</span></div>'
+  +'</section>';
+}
+
+function renderLegend(state){
+  var lang = state.lang || 'fr';
+  var t = T(lang);
+  return ''
+  +'<div class="section">'
+    +'<div class="phase-legend">'
+      +'<span class="chip p1"><span class="dot"></span>'+t.daysWord+' 1–30 · '+esc(t.legendLabels.phase1)+'</span>'
+      +'<span class="chip p2"><span class="dot"></span>'+t.daysWord+' 31–60 · '+esc(t.legendLabels.phase2)+'</span>'
+      +'<span class="chip p3"><span class="dot"></span>'+t.daysWord+' 61–75 · '+esc(t.legendLabels.phase3)+'</span>'
+      +'<span class="chip p4"><span class="dot"></span>'+t.daysWord+' 76–90 · '+esc(t.legendLabels.phase4)+'</span>'
+    +'</div>'
+  +'</div>';
+}
+
+function renderCalendar(state){
+  var lang = state.lang || 'fr';
+  var t = T(lang);
+  var todayIdx = currentDayIndex(state);
+  // figure leading blanks so day 1 aligns under its real weekday (Mon-first grid)
+  var day1Weekday = dateForDay(state.startDate,1).getDay(); // 0=Sun..6=Sat
+  var leadBlanks = (day1Weekday===0) ? 6 : day1Weekday-1;
+  var flat = [];
+  for(var i=0;i<leadBlanks;i++){ flat.push('<button type="button" class="day empty" tabindex="-1" aria-hidden="true"></button>'); }
+  for(var day=1; day<=TOTAL_DAYS; day++){
+    var ph = phaseOf(day, lang);
+    var done = isDayDone(state, day);
+    var isToday = (day===todayIdx);
+    var cls = 'day '+ph.cls+(done?' done':'')+(isToday?' today':'');
+    flat.push('<button type="button" class="'+cls+'" data-action="open-day" data-day="'+day+'">'
+      +'<span class="num tabular">'+day+'</span>'
+      +'<span class="frac tabular">'+esc(dayFraction(state,day))+'</span>'
+      +'</button>');
+  }
+  var rowsHtml = '';
+  for(var r=0; r<flat.length; r+=7){
+    rowsHtml += '<div class="cal-week">' + flat.slice(r, r+7).join('') + '</div>';
+  }
+  return ''
+  +'<div class="section">'
+    +'<div class="section-head"><h2>'+esc(t.calTitle)+'</h2><span class="hint">'+esc(t.calHint)+'</span></div>'
+    +'<div class="cal-scroll"><div class="cal">'
+      +'<div class="cal-weekdays">'+t.weekdays.map(function(h){return '<span>'+esc(h)+'</span>';}).join('')+'</div>'
+      +rowsHtml
+    +'</div></div>'
+  +'</div>';
+}
+
+function renderPanel(state, day){
+  if(!day) return '';
+  var lang = state.lang || 'fr';
+  var t = T(lang);
+  var wd = dateForDay(state.startDate, day).getDay();
+  var blocks = blocksForWeekday(wd);
+  var done = state.tasks[day] || [];
+  var ph = phaseOf(day, lang);
+  var dateStr = dateForDay(state.startDate, day).toLocaleDateString(t.locale, {weekday:'long', day:'numeric', month:'long'});
+  var blockRows = blocks.map(function(b){
+    var checked = done.indexOf(b.id)!==-1;
+    var timeStr = b.time || t.timeLabels[b.timeKey];
+    var label = t.blockLabels[b.id];
+    return '<label class="block'+(checked?' checked':'')+'">'
+      +'<input type="checkbox" data-action="toggle-block" data-day="'+day+'" data-block="'+b.id+'" '+(checked?'checked':'')+'>'
+      +'<span class="ic">'+b.ic+'</span>'
+      +'<span class="txt"><div class="time">'+esc(timeStr)+'</div><div class="lbl">'+esc(label)+'</div><div class="det">'+esc(detailFor(b.id, day, wd, state, lang))+'</div></span>'
+      +'</label>';
+  }).join('');
+  return ''
+  +'<div class="overlay" data-action="close-overlay">'
+    +'<div class="panel" role="dialog" aria-modal="true" aria-label="'+esc(t.dayPanelAria)+' '+day+'">'
+      +'<div class="panel-head"><div><h3>'+esc(t.dayPanelTitle)+' '+day+'</h3><div class="meta">'+esc(dateStr)+'</div></div>'
+      +'<button type="button" class="close" data-action="close-panel" aria-label="'+esc(t.closeAria)+'">✕</button></div>'
+      +'<span class="phase-badge chip '+ph.cls+'">'+esc(ph.name)+' · '+esc(ph.range)+'</span>'
+      +'<div class="block-list">'+blockRows+'</div>'
+    +'</div>'
+  +'</div>';
+}
+
+function renderSkills(state){
+  var lang = state.lang || 'fr';
+  var t = T(lang);
+  var prog = computeSkillProgress(state);
+  var colorFor = { grammar:"var(--accent-blue)", vocab:"var(--accent-pink)", listening:"var(--accent-green)", reading:"var(--accent-amber)", speaking:"var(--accent-pink)", writing:"var(--accent-blue)" };
+  var tiles = SKILL_CATS.map(function(s){
+    var p = prog[s.id]; var pct = p.total ? Math.round(p.done/p.total*100) : 0;
+    return '<div class="skill"><div class="top"><span>'+s.ic+' '+esc(t.skillLabels[s.id])+'</span><span class="pct tabular">'+pct+'%</span></div>'
+      +'<div class="bar"><span style="width:'+pct+'%; background:'+colorFor[s.id]+';"></span></div></div>';
+  }).join('');
+  return ''
+  +'<div class="section">'
+    +'<div class="section-head"><h2>'+esc(t.skillsTitle)+'</h2><span class="hint">'+esc(t.skillsHint)+'</span></div>'
+    +'<div class="skills">'+tiles+'</div>'
+  +'</div>';
+}
+
+function renderFlashcards(state){
+  var lang = state.lang || 'fr';
+  var t = T(lang);
+  var deckButtons = FLASHCARD_DECKS.map(function(d){
+    var scoreEntry = state.quizScores[d.key];
+    var best = scoreEntry ? scoreEntry.best : null;
+    return '<button type="button" class="deck-pill'+(uiDeckKey===d.key?' active':'')+'" data-action="select-deck" data-deck="'+d.key+'">'
+      +esc(deckTitle(d.key, lang))+(best!=null?'<span class="best">'+best+'%</span>':'')
+      +'</button>';
+  }).join('');
+
+  var body;
+  if(!uiDeckKey){
+    body = '<div class="fc-empty">'+esc(t.fcEmpty)+'</div>';
+  } else if(uiQuiz){
+    body = renderQuiz(state, lang, t);
+  } else {
+    body = renderFlashcardViewer(state, lang, t);
+  }
+
+  return ''
+  +'<div class="section">'
+    +'<div class="section-head"><h2>'+esc(t.fcTitle)+'</h2><span class="hint">'+esc(t.fcHint)+'</span></div>'
+    +'<div class="deck-scroll"><div class="deck-row" role="group" aria-label="'+esc(t.fcDeckAria)+'">'+deckButtons+'</div></div>'
+    +body
+  +'</div>';
+}
+
+function renderFlashcardViewer(state, lang, t){
+  var deck = findDeck(uiDeckKey);
+  if(!deck) return '';
+  if(uiCardOrder.length !== deck.cards.length){ uiCardOrder = deck.cards.map(function(_,i){ return i; }); uiCardIndex = 0; }
+  var cardIdx = uiCardOrder[uiCardIndex];
+  var card = deck.cards[cardIdx];
+  var scoreEntry = state.quizScores[uiDeckKey];
+  var best = scoreEntry ? scoreEntry.best : null;
+  return ''
+  +'<div class="fc-wrap">'
+    +'<div class="fc-counter tabular">'+esc(t.fcCounter)+' '+(uiCardIndex+1)+' / '+deck.cards.length+'</div>'
+    +'<div class="flashcard'+(uiCardFlipped?' flipped':'')+'" data-action="flip-card">'
+      +'<div class="flashcard-inner">'
+        +'<div class="flashcard-face front">'
+          +'<div class="fc-row"><div class="word">'+esc(card.fr)+'</div>'
+            +'<button type="button" class="speak-btn" data-action="speak" data-lang="fr-FR" data-text="'+esc(card.fr)+'" aria-label="'+esc(t.listenAria)+'">🔊</button></div>'
+          +'<div class="fc-ex-row"><div class="ex">'+esc(card.ex)+'</div>'
+            +'<button type="button" class="speak-btn small" data-action="speak" data-lang="fr-FR" data-text="'+esc(card.ex)+'" aria-label="'+esc(t.listenAria)+'">🔊</button></div>'
+          +'<div class="hint">'+esc(t.fcFlipHint)+'</div>'
+        +'</div>'
+        +'<div class="flashcard-face back">'
+          +'<div class="fc-row"><div class="word">'+esc(card.en)+'</div>'
+            +'<button type="button" class="speak-btn" data-action="speak" data-lang="en-US" data-text="'+esc(card.en)+'" aria-label="'+esc(t.listenAria)+'">🔊</button></div>'
+          +'<div class="hint">'+esc(t.fcFlipHint)+'</div>'
+        +'</div>'
+      +'</div>'
+    +'</div>'
+    +'<div class="fc-controls">'
+      +'<button type="button" class="fc-btn" data-action="card-prev">'+esc(t.fcPrev)+'</button>'
+      +'<button type="button" class="fc-btn" data-action="shuffle-deck">'+esc(t.fcShuffle)+'</button>'
+      +'<button type="button" class="fc-btn" data-action="card-next">'+esc(t.fcNext)+'</button>'
+    +'</div>'
+    +'<button type="button" class="fc-btn primary" data-action="start-quiz">'+esc(t.fcStartQuiz)+' ('+deck.cards.length+')</button>'
+    +(best!=null ? '<div class="fc-best">'+esc(t.fcBest)+': '+best+'%</div>' : '')
+  +'</div>';
+}
+
+function renderQuiz(state, lang, t){
+  if(uiQuiz.finished){
+    var pct = Math.round(uiQuiz.score/uiQuiz.questions.length*100);
+    return ''
+    +'<div class="quiz-wrap"><div class="quiz-results">'
+      +'<h3>'+esc(t.quizResultsTitle)+'</h3>'
+      +'<div class="score tabular">'+pct+'%</div>'
+      +'<div>'+uiQuiz.score+' '+esc(t.quizScoreOf)+' '+uiQuiz.questions.length+'</div>'
+      +'<div class="fc-controls" style="margin-top:16px;">'
+        +'<button type="button" class="fc-btn primary" data-action="quiz-retake">'+esc(t.quizRetake)+'</button>'
+        +'<button type="button" class="fc-btn" data-action="quiz-back">'+esc(t.quizBack)+'</button>'
+      +'</div>'
+    +'</div></div>';
+  }
+  var q = uiQuiz.questions[uiQuiz.idx];
+  var promptTemplate = q.dir==='fr2en' ? t.quizPromptFr2En : t.quizPromptEn2Fr;
+  var promptText = promptTemplate.replace('{w}', q.promptWord);
+  var choicesHtml = q.choices.map(function(choice){
+    var cls = 'quiz-choice';
+    var disabledAttr = uiQuiz.answered ? 'disabled' : '';
+    if(uiQuiz.answered){
+      if(choice===q.correct) cls += ' correct';
+      else if(choice===uiQuiz.selected) cls += ' wrong';
+    }
+    return '<button type="button" class="'+cls+'" '+disabledAttr+' data-action="quiz-answer" data-choice="'+esc(choice)+'">'+esc(choice)+'</button>';
+  }).join('');
+  var isLast = uiQuiz.idx === uiQuiz.questions.length-1;
+  return ''
+  +'<div class="quiz-wrap">'
+    +'<div class="quiz-progress tabular">'+esc(t.quizProgress)+' '+(uiQuiz.idx+1)+' / '+uiQuiz.questions.length+'</div>'
+    +'<div class="quiz-q"><div class="prompt-row"><div class="prompt">'+esc(promptText)+'</div>'
+      +'<button type="button" class="speak-btn" data-action="speak" data-lang="'+(q.dir==='fr2en'?'fr-FR':'en-US')+'" data-text="'+esc(q.promptWord)+'" aria-label="'+esc(t.listenAria)+'">🔊</button></div>'
+      +'<div class="quiz-choices">'+choicesHtml+'</div>'
+    +'</div>'
+    +(uiQuiz.answered ? '<div class="quiz-next-row"><button type="button" class="fc-btn primary" data-action="quiz-next">'+esc(isLast ? t.quizSeeResults : t.quizNext)+'</button></div>' : '')
+  +'</div>';
+}
+
+function renderNotebook(state){
+  var lang = state.lang || 'fr';
+  var t = T(lang);
+  var order = ["listening","reading","speaking","writing"];
+  var cards = order.map(function(id){
+    var c = t.noteCats[id];
+    return '<div class="card-note"><div class="head">🗂️ '+esc(c.label)+'</div>'
+      +'<textarea data-action="note" data-cat="'+id+'" placeholder="'+esc((lang==='en'?'e.g. ':'Ex. ')+c.ph)+'">'+esc(state.notes[id]||'')+'</textarea></div>';
+  }).join('');
+  return ''
+  +'<div class="section">'
+    +'<div class="section-head"><h2>'+esc(t.notebookTitle)+'</h2><span class="hint">'+esc(t.notebookHint)+'</span></div>'
+    +'<div class="notebook">'+cards+'</div>'
+  +'</div>';
+}
+
+function renderFooter(state){
+  var lang = state.lang || 'fr';
+  var t = T(lang);
+  return ''
+  +'<div class="footer">'
+    +'<div class="cycle">'+t.cycle.map(esc).join(' <b>→</b> ')+'</div>'
+    +'<div class="hours-legend">'+t.hours.map(function(h){ return '<span><b>'+esc(h[0])+'</b> '+esc(h[1])+'</span>'; }).join('')+'</div>'
+    +'<p class="note">'+esc(t.footNote)+'</p>'
+  +'</div>';
+}
+
+function bodyContentHTML(state, openDay){
+  var lang = state.lang || 'fr';
+  var t = T(lang);
+  return renderHero(state) + renderLegend(state) + renderCalendar(state) + (openDay ? renderPanel(state, openDay) : '') + renderSkills(state) + renderFlashcards(state) + renderTcfCalculator(state) + renderNotebook(state) + renderFooter(state) + '<div class="save-flag" id="save-flag">'+esc(t.savedFlag)+'</div>';
+}
+
+/* ---------------- full document (for publish) ---------------- */
+function renderShell(state){
+  var lang = state.lang || 'fr';
+  return '<!doctype html>\n<html lang="'+lang+'">\n<head>\n'+HEAD_HTML+'\n</head>\n<body>\n'
+    +'<div class="wrap" id="root">'+bodyContentHTML(state, null)+'</div>\n'
+    +'<script id="state-json" type="application/json">'+JSON.stringify(state).replace(/</g,'\\u003c')+'<\/script>\n'
+    +'<script src="app.js"><\/script>\n'
+    +'</body>\n</html>';
+}
+
+/* ---------------- persistence ---------------- */
+function flagSaved(){
+  var el = document.getElementById('save-flag');
+  if(!el) return;
+  el.classList.add('show');
+  setTimeout(function(){ el.classList.remove('show'); }, 1400);
+}
+function scheduleSave(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(doPublish, 700);
+}
+function doPublish(){
+  if(!artifactApi) return;
+  artifactApi.publish(renderShell(STATE)).then(function(){ flagSaved(); }).catch(function(){});
+}
+async function initCapabilities(){
+  try{
+    if(window.claude && window.claude.use){
+      artifactApi = await window.claude.use('artifact');
+    }
+  }catch(e){ artifactApi = null; }
+}
+
+/* ---------------- render + events ---------------- */
+function render(){
+  document.documentElement.setAttribute('lang', STATE.lang || 'fr');
+  document.getElementById('root').innerHTML = bodyContentHTML(STATE, uiOpenDay);
+}
+
+function onRootClick(e){
+  var t = e.target.closest('[data-action]');
+  if(!t) return;
+  var action = t.getAttribute('data-action');
+  if(action==='speak'){
+    e.stopPropagation();
+    speak(t.getAttribute('data-text'), t.getAttribute('data-lang'));
+    return;
+  }
+  if(action==='open-day'){ uiOpenDay = parseInt(t.getAttribute('data-day'),10); render(); }
+  else if(action==='close-panel' || action==='close-overlay'){
+    if(action==='close-overlay' && e.target !== t) return; // only backdrop itself
+    uiOpenDay = null; render();
+  }
+  else if(action==='set-exam'){ STATE.examTarget = t.getAttribute('data-exam'); render(); scheduleSave(); }
+  else if(action==='set-lang'){ STATE.lang = t.getAttribute('data-lang'); render(); scheduleSave(); }
+  else if(action==='select-deck'){
+    uiDeckKey = t.getAttribute('data-deck');
+    uiCardOrder = []; uiCardIndex = 0; uiCardFlipped = false; uiQuiz = null;
+    render();
+  }
+  else if(action==='flip-card'){ uiCardFlipped = !uiCardFlipped; render(); }
+  else if(action==='card-prev' || action==='card-next'){
+    var deck0 = findDeck(uiDeckKey);
+    if(deck0){
+      var len0 = deck0.cards.length;
+      uiCardIndex = action==='card-prev' ? (uiCardIndex - 1 + len0) % len0 : (uiCardIndex + 1) % len0;
+      uiCardFlipped = false;
+      render();
+    }
+  }
+  else if(action==='shuffle-deck'){
+    var deck1 = findDeck(uiDeckKey);
+    if(deck1){
+      uiCardOrder = shuffleArr(deck1.cards.map(function(_,i){ return i; }));
+      uiCardIndex = 0; uiCardFlipped = false;
+      render();
+    }
+  }
+  else if(action==='start-quiz' || action==='quiz-retake'){
+    var deck2 = findDeck(uiDeckKey);
+    if(deck2){
+      uiQuiz = { questions: buildQuiz(deck2, Math.min(8, deck2.cards.length)), idx:0, score:0, answered:false, selected:null, finished:false };
+      render();
+    }
+  }
+  else if(action==='quiz-answer'){
+    if(uiQuiz && !uiQuiz.answered){
+      var choice = t.getAttribute('data-choice');
+      uiQuiz.answered = true;
+      uiQuiz.selected = choice;
+      if(choice === uiQuiz.questions[uiQuiz.idx].correct) uiQuiz.score++;
+      render();
+    }
+  }
+  else if(action==='quiz-next'){
+    if(uiQuiz){
+      if(uiQuiz.idx < uiQuiz.questions.length - 1){
+        uiQuiz.idx++; uiQuiz.answered = false; uiQuiz.selected = null;
+      } else {
+        uiQuiz.finished = true;
+        var pct = Math.round(uiQuiz.score / uiQuiz.questions.length * 100);
+        var prev = STATE.quizScores[uiDeckKey] || { best:0, attempts:0 };
+        STATE.quizScores[uiDeckKey] = { best: Math.max(prev.best||0, pct), attempts: (prev.attempts||0)+1 };
+        scheduleSave();
+      }
+      render();
+    }
+  }
+  else if(action==='quiz-back'){ uiQuiz = null; render(); }
+}
+function onRootChange(e){
+  var t = e.target;
+  if(t.matches('[data-action="toggle-block"]')){
+    var day = t.getAttribute('data-day');
+    var block = t.getAttribute('data-block');
+    var arr = STATE.tasks[day] || [];
+    var idx = arr.indexOf(block);
+    if(t.checked && idx===-1) arr.push(block);
+    if(!t.checked && idx!==-1) arr.splice(idx,1);
+    STATE.tasks[day] = arr;
+    render();
+    scheduleSave();
+  } else if(t.matches('[data-action="set-start"]')){
+    if(t.value){ STATE.startDate = t.value; render(); scheduleSave(); }
+  }
+}
+function onRootInput(e){
+  var t = e.target;
+  if(t.matches('[data-action="note"]')){
+    STATE.notes[t.getAttribute('data-cat')] = t.value;
+    scheduleSave();
+  } else if(t.matches('[data-action="tcf-score"]')){
+    var skill = t.getAttribute('data-skill');
+    var v = t.value;
+    if(!STATE.tcfScores) STATE.tcfScores = { listening:null, reading:null, speaking:null, writing:null };
+    STATE.tcfScores[skill] = (v==='' ? null : Number(v));
+    updateTcfUI();
+    scheduleSave();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  render();
+  document.getElementById('root').addEventListener('click', onRootClick);
+  document.getElementById('root').addEventListener('change', onRootChange);
+  document.getElementById('root').addEventListener('input', onRootInput);
+  initCapabilities();
+});
