@@ -345,6 +345,8 @@ var DICT = {
       newPasswordLabel: "Nouveau mot de passe",
       resetButton: "Mettre à jour le mot de passe",
       updating: "Mise à jour…",
+      showPassword: "Afficher le mot de passe",
+      hidePassword: "Masquer le mot de passe",
       signedInAs: "Connecté(e) en tant que",
       logout: "Se déconnecter",
       configErrorTitle: "Configuration manquante",
@@ -491,6 +493,8 @@ var DICT = {
       newPasswordLabel: "New password",
       resetButton: "Update password",
       updating: "Updating…",
+      showPassword: "Show password",
+      hidePassword: "Hide password",
       signedInAs: "Signed in as",
       logout: "Log out",
       configErrorTitle: "Missing configuration",
@@ -1149,6 +1153,17 @@ function renderAuthCard(inner){
 function renderAuthError(){
   return uiAuthError ? '<div class="auth-error">'+esc(uiAuthError)+'</div>' : '';
 }
+/* a password input with a 👁️ show/hide toggle; the toggle flips input.type via direct DOM
+   manipulation (see 'auth-toggle-password' in onRootClick) rather than a full render(), since
+   this app re-renders by replacing innerHTML wholesale and password fields carry no value
+   attribute — a render() while typing would silently wipe whatever was typed */
+function passwordField(id, label, autocomplete, t){
+  return '<label class="auth-label" for="'+id+'">'+esc(label)+'</label>'
+    +'<div class="auth-password-wrap">'
+      +'<input type="password" class="auth-input" id="'+id+'" autocomplete="'+autocomplete+'">'
+      +'<button type="button" class="auth-eye" data-action="auth-toggle-password" data-target="'+id+'" aria-label="'+esc(t.showPassword)+'">👁️</button>'
+    +'</div>';
+}
 function renderLogin(){
   var t = T(preAuthLang()).auth;
   return renderAuthCard(''
@@ -1158,8 +1173,7 @@ function renderLogin(){
     +renderAuthError()
     +'<label class="auth-label" for="auth-email">'+esc(t.emailLabel)+'</label>'
     +'<input type="email" class="auth-input" id="auth-email" autocomplete="email" value="'+esc(uiAuthForm.email)+'">'
-    +'<label class="auth-label" for="auth-password">'+esc(t.passwordLabel)+'</label>'
-    +'<input type="password" class="auth-input" id="auth-password" autocomplete="current-password">'
+    +passwordField('auth-password', t.passwordLabel, 'current-password', t)
     +'<button type="button" class="fc-btn primary auth-submit" data-action="auth-login"'+(uiAuthBusy?' disabled':'')+'>'+esc(uiAuthBusy ? t.loggingIn : t.loginButton)+'</button>'
     +'<div class="auth-links"><button type="button" class="auth-link" data-action="auth-goto" data-view="forgot">'+esc(t.forgotLink)+'</button></div>'
     +'<div class="auth-switch">'+esc(t.noAccount)+' <button type="button" class="auth-link strong" data-action="auth-goto" data-view="signup">'+esc(t.signupLink)+'</button></div>'
@@ -1174,10 +1188,8 @@ function renderSignup(){
     +renderAuthError()
     +'<label class="auth-label" for="auth-email">'+esc(t.emailLabel)+'</label>'
     +'<input type="email" class="auth-input" id="auth-email" autocomplete="email" value="'+esc(uiAuthForm.email)+'">'
-    +'<label class="auth-label" for="auth-password">'+esc(t.passwordLabel)+'</label>'
-    +'<input type="password" class="auth-input" id="auth-password" autocomplete="new-password">'
-    +'<label class="auth-label" for="auth-password-confirm">'+esc(t.confirmPasswordLabel)+'</label>'
-    +'<input type="password" class="auth-input" id="auth-password-confirm" autocomplete="new-password">'
+    +passwordField('auth-password', t.passwordLabel, 'new-password', t)
+    +passwordField('auth-password-confirm', t.confirmPasswordLabel, 'new-password', t)
     +'<button type="button" class="fc-btn primary auth-submit" data-action="auth-signup"'+(uiAuthBusy?' disabled':'')+'>'+esc(uiAuthBusy ? t.signingUp : t.signupButton)+'</button>'
     +'<div class="auth-switch">'+esc(t.haveAccount)+' <button type="button" class="auth-link strong" data-action="auth-goto" data-view="login">'+esc(t.loginLink)+'</button></div>'
   );
@@ -1221,8 +1233,7 @@ function renderResetPassword(){
     +'<h2>'+esc(t.resetTitle)+'</h2>'
     +'<p class="auth-hint">'+esc(t.resetHint)+'</p>'
     +renderAuthError()
-    +'<label class="auth-label" for="auth-new-password">'+esc(t.newPasswordLabel)+'</label>'
-    +'<input type="password" class="auth-input" id="auth-new-password" autocomplete="new-password">'
+    +passwordField('auth-new-password', t.newPasswordLabel, 'new-password', t)
     +'<button type="button" class="fc-btn primary auth-submit" data-action="auth-reset"'+(uiAuthBusy?' disabled':'')+'>'+esc(uiAuthBusy ? t.updating : t.resetButton)+'</button>'
   );
 }
@@ -1762,6 +1773,17 @@ function onRootClick(e){
   if(action==='auth-forgot'){ doForgotPassword(); return; }
   if(action==='auth-reset'){ doResetPassword(); return; }
   if(action==='auth-logout'){ doLogout(); return; }
+  if(action==='auth-toggle-password'){
+    var input = document.getElementById(t.getAttribute('data-target'));
+    if(input){
+      var tt = T(preAuthLang()).auth;
+      var showingText = input.type === 'text';
+      input.type = showingText ? 'password' : 'text';
+      t.textContent = showingText ? '👁️' : '🙈';
+      t.setAttribute('aria-label', showingText ? tt.showPassword : tt.hidePassword);
+    }
+    return;
+  }
   if(action==='speak'){
     e.stopPropagation();
     speak(t.getAttribute('data-text'), t.getAttribute('data-lang'));
