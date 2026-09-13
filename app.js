@@ -280,6 +280,7 @@ var DICT = {
     examAria: "Choix de l'examen",
     langAria: "Langue de l'interface",
     startLabel: "Jour 1 :",
+    startLockHint: "Modifiable une seule fois — se débloque à nouveau une fois le plan de 90 jours terminé (anti-triche).",
     statToday: "Aujourd'hui",
     statPhase: "Phase actuelle",
     statStreak: "Série en cours",
@@ -384,6 +385,7 @@ var DICT = {
     examAria: "Exam choice",
     langAria: "Interface language",
     startLabel: "Day 1:",
+    startLockHint: "Editable once — unlocks again after you finish the 90-day plan (to prevent cheating).",
     statToday: "Today",
     statPhase: "Current phase",
     statStreak: "Current streak",
@@ -611,7 +613,7 @@ function blocksForWeekday(weekdayJs){ return weekdayJs===0 ? BLOCKS_SUNDAY : BLO
 
 /* ---------------- state ---------------- */
 function defaultState(){
-  return { startDate: "2026-09-12", examTarget: "TEF", lang: "fr", tasks: {}, notes: { listening:"", reading:"", speaking:"", writing:"" }, quizScores: {}, quizHistory: [], tcfScores: { listening:null, reading:null, speaking:null, writing:null } };
+  return { startDate: "2026-09-12", startDateChangedOnce: false, examTarget: "TEF", lang: "fr", tasks: {}, notes: { listening:"", reading:"", speaking:"", writing:"" }, quizScores: {}, quizHistory: [], tcfScores: { listening:null, reading:null, speaking:null, writing:null } };
 }
 function loadInitialState(){
   try{
@@ -824,6 +826,10 @@ function currentDayIndex(state){
   var d = diffDaysFrom(state.startDate, new Date()) + 1;
   return d;
 }
+function isPlanCompleted(state){ return currentDayIndex(state) > TOTAL_DAYS; }
+/* the start date can be set once freely; after that it's locked until the 90-day plan
+   has run its course, so people can't nudge Day 1 around to dodge missed-day tracking */
+function isStartDateLocked(state){ return !!state.startDateChangedOnce && !isPlanCompleted(state); }
 /* good = fully checked off; almost = past day, at least half done; missed = past day, mostly skipped */
 function dayStatus(state, day, todayIdx){
   if(isDayDone(state, day)) return 'good';
@@ -1067,7 +1073,14 @@ function renderHero(state){
         +'</div>'
       +'</div>'
     +'</div>'
-    +'<div class="start-row"><label for="start-date-input">'+esc(t.startLabel)+'</label><input id="start-date-input" type="date" value="'+esc(state.startDate)+'" data-action="set-start"></div>'
+    +(function(){
+      var locked = isStartDateLocked(state);
+      return '<div class="start-row"><label for="start-date-input">'+esc(t.startLabel)+'</label>'
+        +'<input id="start-date-input" type="date" value="'+esc(state.startDate)+'" data-action="set-start"'+(locked?' disabled':'')+'>'
+        +(locked?'<span class="start-lock" title="'+esc(t.startLockHint)+'">🔒</span>':'')
+      +'</div>'
+      +(locked?'<div class="start-lock-note">🔒 '+esc(t.startLockHint)+'</div>':'');
+    })()
     +'<div class="stats">'
       +'<div class="stat"><div class="k">'+esc(t.statToday)+'</div><div class="v tabular">'+dayLabel+(idx>=1&&idx<=TOTAL_DAYS?' <small>/ 90</small>':'')+'</div></div>'
       +'<div class="stat phase"><div class="k">'+esc(t.statPhase)+'</div><div class="v">'+esc(ph.name)+'</div></div>'
@@ -1516,7 +1529,8 @@ function onRootChange(e){
     render();
     scheduleSave();
   } else if(t.matches('[data-action="set-start"]')){
-    if(t.value){ STATE.startDate = t.value; render(); scheduleSave(); }
+    if(isStartDateLocked(STATE)){ render(); return; } // belt-and-suspenders in case a disabled input still fired
+    if(t.value){ STATE.startDate = t.value; STATE.startDateChangedOnce = true; render(); scheduleSave(); }
   }
 }
 function onRootInput(e){

@@ -155,6 +155,9 @@ button{ font-family:inherit; }
   font-family:inherit; font-size:0.85rem; color:var(--ink); background:var(--surface);
   border:1px solid var(--border-strong); border-radius:var(--radius-sm); padding:6px 10px;
 }
+.start-row input[type="date"]:disabled{ opacity:0.6; cursor:not-allowed; background:var(--bg-alt); }
+.start-lock{ font-size:0.9rem; cursor:help; }
+.start-lock-note{ margin-top:6px; font-size:0.76rem; color:var(--ink-faint); font-style:italic; }
 
 /* ---------- stat tiles ---------- */
 .stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:22px; }
