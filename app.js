@@ -64,172 +64,172 @@ var SPEAKING_PROMPTS = {
 /* deck index i (0-17) pairs with VOCAB_TOPICS[lang][i]; "connectors" is a standalone deck */
 var FLASHCARD_DECKS = [
   { key:"topic0", cards:[
-    {fr:"la société", en:"society", ex:"La société évolue rapidement avec les nouvelles technologies."},
-    {fr:"un citoyen", en:"a citizen", ex:"Chaque citoyen a des droits et des devoirs."},
-    {fr:"l'inégalité", en:"inequality", ex:"Les inégalités sociales restent un défi majeur."},
-    {fr:"la solidarité", en:"solidarity", ex:"La solidarité entre générations est essentielle."},
-    {fr:"un enjeu", en:"a stake / an issue", ex:"C'est un enjeu de société important."},
-    {fr:"la cohésion sociale", en:"social cohesion", ex:"La cohésion sociale renforce la stabilité du pays."}
+    {fr:"la société", en:"society", pron:"lah soh-syay-TAY", ex:"La société évolue rapidement avec les nouvelles technologies.", exEn:"Society is evolving quickly with new technologies."},
+    {fr:"un citoyen", en:"a citizen", pron:"uhn see-twah-YEHN", ex:"Chaque citoyen a des droits et des devoirs.", exEn:"Every citizen has rights and responsibilities."},
+    {fr:"l'inégalité", en:"inequality", pron:"lee-nay-gah-lee-TAY", ex:"Les inégalités sociales restent un défi majeur.", exEn:"Social inequalities remain a major challenge."},
+    {fr:"la solidarité", en:"solidarity", pron:"lah soh-lee-dah-ree-TAY", ex:"La solidarité entre générations est essentielle.", exEn:"Solidarity between generations is essential."},
+    {fr:"un enjeu", en:"a stake / an issue", pron:"uhn nahn-ZHUH", ex:"C'est un enjeu de société important.", exEn:"It's an important societal issue."},
+    {fr:"la cohésion sociale", en:"social cohesion", pron:"lah koh-ay-zyohn soh-SYAHL", ex:"La cohésion sociale renforce la stabilité du pays.", exEn:"Social cohesion strengthens the country's stability."}
   ]},
   { key:"topic1", cards:[
-    {fr:"un emploi", en:"a job", ex:"Trouver un emploi stable n'est pas toujours facile."},
-    {fr:"le chômage", en:"unemployment", ex:"Le taux de chômage a baissé cette année."},
-    {fr:"un employeur", en:"an employer", ex:"L'employeur doit respecter le droit du travail."},
-    {fr:"une candidature", en:"a job application", ex:"J'ai envoyé ma candidature la semaine dernière."},
-    {fr:"le télétravail", en:"remote work", ex:"Le télétravail s'est généralisé depuis la pandémie."},
-    {fr:"la formation professionnelle", en:"professional training", ex:"La formation professionnelle améliore l'employabilité."}
+    {fr:"un emploi", en:"a job", pron:"uhn nahn-PLWAH", ex:"Trouver un emploi stable n'est pas toujours facile.", exEn:"Finding a stable job isn't always easy."},
+    {fr:"le chômage", en:"unemployment", pron:"luh shoh-MAHZH", ex:"Le taux de chômage a baissé cette année.", exEn:"The unemployment rate has dropped this year."},
+    {fr:"un employeur", en:"an employer", pron:"uhn nahn-plwah-YUHR", ex:"L'employeur doit respecter le droit du travail.", exEn:"The employer must respect labor law."},
+    {fr:"une candidature", en:"a job application", pron:"ewn kahn-dee-dah-TEWR", ex:"J'ai envoyé ma candidature la semaine dernière.", exEn:"I sent my application last week."},
+    {fr:"le télétravail", en:"remote work", pron:"luh tay-lay-trah-VAHY", ex:"Le télétravail s'est généralisé depuis la pandémie.", exEn:"Remote work has become widespread since the pandemic."},
+    {fr:"la formation professionnelle", en:"professional training", pron:"lah for-mah-syohn pro-feh-syo-NEHL", ex:"La formation professionnelle améliore l'employabilité.", exEn:"Professional training improves employability."}
   ]},
   { key:"topic2", cards:[
-    {fr:"l'éducation", en:"education", ex:"L'éducation est la clé du développement."},
-    {fr:"un établissement scolaire", en:"a school institution", ex:"Cet établissement scolaire accueille 500 élèves."},
-    {fr:"le décrochage scolaire", en:"dropping out of school", ex:"Le décrochage scolaire inquiète les enseignants."},
-    {fr:"une bourse d'études", en:"a scholarship", ex:"Elle a obtenu une bourse d'études à l'étranger."},
-    {fr:"l'apprentissage", en:"learning / apprenticeship", ex:"L'apprentissage des langues demande de la pratique."},
-    {fr:"un diplôme", en:"a diploma", ex:"Il a obtenu son diplôme avec mention."}
+    {fr:"l'éducation", en:"education", pron:"lay-dew-kah-SYOHN", ex:"L'éducation est la clé du développement.", exEn:"Education is the key to development."},
+    {fr:"un établissement scolaire", en:"a school institution", pron:"uhn nay-tah-blees-mahn skoh-LEHR", ex:"Cet établissement scolaire accueille 500 élèves.", exEn:"This school has 500 students."},
+    {fr:"le décrochage scolaire", en:"dropping out of school", pron:"luh day-kroh-shahzh skoh-LEHR", ex:"Le décrochage scolaire inquiète les enseignants.", exEn:"School dropout worries teachers."},
+    {fr:"une bourse d'études", en:"a scholarship", pron:"ewn boors day-TEWD", ex:"Elle a obtenu une bourse d'études à l'étranger.", exEn:"She got a scholarship to study abroad."},
+    {fr:"l'apprentissage", en:"learning / apprenticeship", pron:"lah-prahn-tee-SAHZH", ex:"L'apprentissage des langues demande de la pratique.", exEn:"Learning languages requires practice."},
+    {fr:"un diplôme", en:"a diploma", pron:"uhn dee-PLOHM", ex:"Il a obtenu son diplôme avec mention.", exEn:"He got his diploma with honors."}
   ]},
   { key:"topic3", cards:[
-    {fr:"le réchauffement climatique", en:"global warming", ex:"Le réchauffement climatique menace les écosystèmes."},
-    {fr:"une énergie renouvelable", en:"a renewable energy", ex:"Le pays investit dans les énergies renouvelables."},
-    {fr:"la pollution", en:"pollution", ex:"La pollution de l'air affecte la santé publique."},
-    {fr:"le développement durable", en:"sustainable development", ex:"Le développement durable concilie économie et écologie."},
-    {fr:"une empreinte carbone", en:"a carbon footprint", ex:"Réduire son empreinte carbone est devenu une priorité."},
-    {fr:"la biodiversité", en:"biodiversity", ex:"La biodiversité décline à un rythme alarmant."}
+    {fr:"le réchauffement climatique", en:"global warming", pron:"luh ray-shohf-mahn klee-mah-TEEK", ex:"Le réchauffement climatique menace les écosystèmes.", exEn:"Global warming threatens ecosystems."},
+    {fr:"une énergie renouvelable", en:"a renewable energy", pron:"ewn ay-nehr-zhee ruh-noo-vuh-LAHBL", ex:"Le pays investit dans les énergies renouvelables.", exEn:"The country is investing in renewable energy."},
+    {fr:"la pollution", en:"pollution", pron:"lah poh-lew-SYOHN", ex:"La pollution de l'air affecte la santé publique.", exEn:"Air pollution affects public health."},
+    {fr:"le développement durable", en:"sustainable development", pron:"luh day-vlohp-mahn dew-RAHBL", ex:"Le développement durable concilie économie et écologie.", exEn:"Sustainable development reconciles economy and ecology."},
+    {fr:"une empreinte carbone", en:"a carbon footprint", pron:"ewn nahn-prant kar-BOHN", ex:"Réduire son empreinte carbone est devenu une priorité.", exEn:"Reducing your carbon footprint has become a priority."},
+    {fr:"la biodiversité", en:"biodiversity", pron:"lah byoh-dee-vehr-see-TAY", ex:"La biodiversité décline à un rythme alarmant.", exEn:"Biodiversity is declining at an alarming rate."}
   ]},
   { key:"topic4", cards:[
-    {fr:"l'intelligence artificielle", en:"artificial intelligence", ex:"L'intelligence artificielle transforme le monde du travail."},
-    {fr:"un algorithme", en:"an algorithm", ex:"Cet algorithme analyse des millions de données."},
-    {fr:"la vie privée", en:"privacy", ex:"La technologie soulève des questions de vie privée."},
-    {fr:"une innovation", en:"an innovation", ex:"Cette innovation a révolutionné le secteur."},
-    {fr:"le numérique", en:"digital (technology)", ex:"La transition numérique s'accélère."},
-    {fr:"une donnée", en:"a piece of data", ex:"Les données personnelles doivent être protégées."}
+    {fr:"l'intelligence artificielle", en:"artificial intelligence", pron:"lan-teh-lee-zhahns ar-tee-fee-SYEHL", ex:"L'intelligence artificielle transforme le monde du travail.", exEn:"Artificial intelligence is transforming the world of work."},
+    {fr:"un algorithme", en:"an algorithm", pron:"uhn nal-goh-REETM", ex:"Cet algorithme analyse des millions de données.", exEn:"This algorithm analyzes millions of data points."},
+    {fr:"la vie privée", en:"privacy", pron:"lah vee pree-VAY", ex:"La technologie soulève des questions de vie privée.", exEn:"Technology raises privacy concerns."},
+    {fr:"une innovation", en:"an innovation", pron:"ewn nee-noh-vah-SYOHN", ex:"Cette innovation a révolutionné le secteur.", exEn:"This innovation revolutionized the sector."},
+    {fr:"le numérique", en:"digital (technology)", pron:"luh new-may-REEK", ex:"La transition numérique s'accélère.", exEn:"The digital transition is accelerating."},
+    {fr:"une donnée", en:"a piece of data", pron:"ewn doh-NAY", ex:"Les données personnelles doivent être protégées.", exEn:"Personal data must be protected."}
   ]},
   { key:"topic5", cards:[
-    {fr:"le système de santé", en:"the healthcare system", ex:"Le système de santé public est sous pression."},
-    {fr:"un patient", en:"a patient", ex:"Le patient a été bien pris en charge."},
-    {fr:"la prévention", en:"prevention", ex:"La prévention reste la meilleure arme contre la maladie."},
-    {fr:"un traitement", en:"a treatment", ex:"Ce traitement a montré de bons résultats."},
-    {fr:"l'accès aux soins", en:"access to care", ex:"L'accès aux soins reste inégal selon les régions."},
-    {fr:"le bien-être", en:"well-being", ex:"Le bien-être au travail est de plus en plus valorisé."}
+    {fr:"le système de santé", en:"the healthcare system", pron:"luh sees-tehm duh sahn-TAY", ex:"Le système de santé public est sous pression.", exEn:"The public healthcare system is under pressure."},
+    {fr:"un patient", en:"a patient", pron:"uhn pah-SYAHN", ex:"Le patient a été bien pris en charge.", exEn:"The patient was well taken care of."},
+    {fr:"la prévention", en:"prevention", pron:"lah pray-vahn-SYOHN", ex:"La prévention reste la meilleure arme contre la maladie.", exEn:"Prevention remains the best weapon against illness."},
+    {fr:"un traitement", en:"a treatment", pron:"uhn treht-MAHN", ex:"Ce traitement a montré de bons résultats.", exEn:"This treatment showed good results."},
+    {fr:"l'accès aux soins", en:"access to care", pron:"lak-seh oh SWAN", ex:"L'accès aux soins reste inégal selon les régions.", exEn:"Access to care remains unequal across regions."},
+    {fr:"le bien-être", en:"well-being", pron:"luh byahn-NEHTR", ex:"Le bien-être au travail est de plus en plus valorisé.", exEn:"Well-being at work is increasingly valued."}
   ]},
   { key:"topic6", cards:[
-    {fr:"le gouvernement", en:"the government", ex:"Le gouvernement a annoncé de nouvelles mesures."},
-    {fr:"une politique publique", en:"a public policy", ex:"Cette politique publique vise à réduire la pauvreté."},
-    {fr:"un élu", en:"an elected official", ex:"Les élus locaux gèrent le budget municipal."},
-    {fr:"une réforme", en:"a reform", ex:"La réforme des retraites a suscité des débats."},
-    {fr:"le pouvoir", en:"power / authority", ex:"La séparation des pouvoirs garantit la démocratie."},
-    {fr:"un décret", en:"a decree", ex:"Le décret entre en vigueur le mois prochain."}
+    {fr:"le gouvernement", en:"the government", pron:"luh goo-vehr-nuh-MAHN", ex:"Le gouvernement a annoncé de nouvelles mesures.", exEn:"The government announced new measures."},
+    {fr:"une politique publique", en:"a public policy", pron:"ewn poh-lee-teek pew-BLEEK", ex:"Cette politique publique vise à réduire la pauvreté.", exEn:"This public policy aims to reduce poverty."},
+    {fr:"un élu", en:"an elected official", pron:"uhn nay-LEW", ex:"Les élus locaux gèrent le budget municipal.", exEn:"Local elected officials manage the municipal budget."},
+    {fr:"une réforme", en:"a reform", pron:"ewn ray-FORM", ex:"La réforme des retraites a suscité des débats.", exEn:"The pension reform sparked debates."},
+    {fr:"le pouvoir", en:"power / authority", pron:"luh poo-VWAHR", ex:"La séparation des pouvoirs garantit la démocratie.", exEn:"The separation of powers guarantees democracy."},
+    {fr:"un décret", en:"a decree", pron:"uhn day-KREH", ex:"Le décret entre en vigueur le mois prochain.", exEn:"The decree takes effect next month."}
   ]},
   { key:"topic7", cards:[
-    {fr:"la croissance économique", en:"economic growth", ex:"La croissance économique a ralenti cette année."},
-    {fr:"l'inflation", en:"inflation", ex:"L'inflation pèse sur le pouvoir d'achat."},
-    {fr:"un marché", en:"a market", ex:"Le marché du travail reste tendu."},
-    {fr:"une entreprise", en:"a company", ex:"Cette entreprise emploie 200 personnes."},
-    {fr:"la mondialisation", en:"globalization", ex:"La mondialisation a transformé les échanges commerciaux."},
-    {fr:"le pouvoir d'achat", en:"purchasing power", ex:"Le pouvoir d'achat des ménages a diminué."}
+    {fr:"la croissance économique", en:"economic growth", pron:"lah krwah-sahns ay-koh-noh-MEEK", ex:"La croissance économique a ralenti cette année.", exEn:"Economic growth slowed down this year."},
+    {fr:"l'inflation", en:"inflation", pron:"lan-flah-SYOHN", ex:"L'inflation pèse sur le pouvoir d'achat.", exEn:"Inflation weighs on purchasing power."},
+    {fr:"un marché", en:"a market", pron:"uhn mar-SHAY", ex:"Le marché du travail reste tendu.", exEn:"The job market remains tight."},
+    {fr:"une entreprise", en:"a company", pron:"ewn nahn-truh-PREEZ", ex:"Cette entreprise emploie 200 personnes.", exEn:"This company employs 200 people."},
+    {fr:"la mondialisation", en:"globalization", pron:"lah mohn-dyah-lee-zah-SYOHN", ex:"La mondialisation a transformé les échanges commerciaux.", exEn:"Globalization has transformed trade."},
+    {fr:"le pouvoir d'achat", en:"purchasing power", pron:"luh poo-vwahr dah-SHAH", ex:"Le pouvoir d'achat des ménages a diminué.", exEn:"Households' purchasing power has decreased."}
   ]},
   { key:"topic8", cards:[
-    {fr:"un immigrant", en:"an immigrant", ex:"Les immigrants contribuent à l'économie locale."},
-    {fr:"l'intégration", en:"integration", ex:"L'intégration passe souvent par la langue."},
-    {fr:"un réfugié", en:"a refugee", ex:"Le pays a accueilli des milliers de réfugiés."},
-    {fr:"un titre de séjour", en:"a residence permit", ex:"Il attend son titre de séjour depuis six mois."},
-    {fr:"la diversité culturelle", en:"cultural diversity", ex:"La diversité culturelle enrichit la société."},
-    {fr:"l'accueil", en:"reception / welcoming", ex:"L'accueil des nouveaux arrivants est essentiel."}
+    {fr:"un immigrant", en:"an immigrant", pron:"uhn nee-mee-GRAHN", ex:"Les immigrants contribuent à l'économie locale.", exEn:"Immigrants contribute to the local economy."},
+    {fr:"l'intégration", en:"integration", pron:"lan-tay-grah-SYOHN", ex:"L'intégration passe souvent par la langue.", exEn:"Integration often happens through language."},
+    {fr:"un réfugié", en:"a refugee", pron:"uhn ray-few-ZHYAY", ex:"Le pays a accueilli des milliers de réfugiés.", exEn:"The country welcomed thousands of refugees."},
+    {fr:"un titre de séjour", en:"a residence permit", pron:"uhn TEETR duh say-ZHOOR", ex:"Il attend son titre de séjour depuis six mois.", exEn:"He's been waiting for his residence permit for six months."},
+    {fr:"la diversité culturelle", en:"cultural diversity", pron:"lah dee-vehr-see-tay kewl-tew-REHL", ex:"La diversité culturelle enrichit la société.", exEn:"Cultural diversity enriches society."},
+    {fr:"l'accueil", en:"reception / welcoming", pron:"lah-KUHY", ex:"L'accueil des nouveaux arrivants est essentiel.", exEn:"Welcoming newcomers is essential."}
   ]},
   { key:"topic9", cards:[
-    {fr:"le logement", en:"housing", ex:"Le logement abordable manque dans les grandes villes."},
-    {fr:"un loyer", en:"rent", ex:"Les loyers ont fortement augmenté cette année."},
-    {fr:"un locataire", en:"a tenant", ex:"Le locataire doit respecter le contrat de bail."},
-    {fr:"un propriétaire", en:"a landlord / owner", ex:"Le propriétaire est responsable des réparations."},
-    {fr:"la crise du logement", en:"the housing crisis", ex:"La crise du logement touche surtout les jeunes."},
-    {fr:"un quartier", en:"a neighborhood", ex:"Ce quartier est en pleine rénovation."}
+    {fr:"le logement", en:"housing", pron:"luh lohzh-MAHN", ex:"Le logement abordable manque dans les grandes villes.", exEn:"Affordable housing is lacking in big cities."},
+    {fr:"un loyer", en:"rent", pron:"uhn lwah-YAY", ex:"Les loyers ont fortement augmenté cette année.", exEn:"Rents have gone up a lot this year."},
+    {fr:"un locataire", en:"a tenant", pron:"uhn loh-kah-TEHR", ex:"Le locataire doit respecter le contrat de bail.", exEn:"The tenant must respect the lease agreement."},
+    {fr:"un propriétaire", en:"a landlord / owner", pron:"uhn proh-pree-ay-TEHR", ex:"Le propriétaire est responsable des réparations.", exEn:"The landlord is responsible for repairs."},
+    {fr:"la crise du logement", en:"the housing crisis", pron:"lah kreez dew lohzh-MAHN", ex:"La crise du logement touche surtout les jeunes.", exEn:"The housing crisis mostly affects young people."},
+    {fr:"un quartier", en:"a neighborhood", pron:"uhn kar-TYAY", ex:"Ce quartier est en pleine rénovation.", exEn:"This neighborhood is being fully renovated."}
   ]},
   { key:"topic10", cards:[
-    {fr:"les transports en commun", en:"public transportation", ex:"Les transports en commun réduisent la pollution."},
-    {fr:"un embouteillage", en:"a traffic jam", ex:"Les embouteillages coûtent du temps et de l'argent."},
-    {fr:"une infrastructure", en:"an infrastructure", ex:"Le pays investit dans ses infrastructures routières."},
-    {fr:"la mobilité durable", en:"sustainable mobility", ex:"La mobilité durable devient une priorité urbaine."},
-    {fr:"un trajet", en:"a trip / commute", ex:"Son trajet domicile-travail dure une heure."},
-    {fr:"une voie ferrée", en:"a railway", ex:"La voie ferrée relie les deux grandes villes."}
+    {fr:"les transports en commun", en:"public transportation", pron:"leh trahns-por ahn koh-MUHN", ex:"Les transports en commun réduisent la pollution.", exEn:"Public transportation reduces pollution."},
+    {fr:"un embouteillage", en:"a traffic jam", pron:"uhn nahn-boo-teh-YAHZH", ex:"Les embouteillages coûtent du temps et de l'argent.", exEn:"Traffic jams cost time and money."},
+    {fr:"une infrastructure", en:"an infrastructure", pron:"ewn an-frah-strewk-TEWR", ex:"Le pays investit dans ses infrastructures routières.", exEn:"The country is investing in its road infrastructure."},
+    {fr:"la mobilité durable", en:"sustainable mobility", pron:"lah moh-bee-lee-tay dew-RAHBL", ex:"La mobilité durable devient une priorité urbaine.", exEn:"Sustainable mobility is becoming an urban priority."},
+    {fr:"un trajet", en:"a trip / commute", pron:"uhn trah-ZHEH", ex:"Son trajet domicile-travail dure une heure.", exEn:"Their commute takes one hour."},
+    {fr:"une voie ferrée", en:"a railway", pron:"ewn vwah feh-RAY", ex:"La voie ferrée relie les deux grandes villes.", exEn:"The railway connects the two major cities."}
   ]},
   { key:"topic11", cards:[
-    {fr:"la structure familiale", en:"family structure", ex:"La structure familiale a beaucoup évolué."},
-    {fr:"un parent", en:"a parent / relative", ex:"Les parents jouent un rôle clé dans l'éducation."},
-    {fr:"la garde d'enfants", en:"childcare", ex:"La garde d'enfants reste coûteuse pour les familles."},
-    {fr:"le congé parental", en:"parental leave", ex:"Le congé parental est mieux partagé aujourd'hui."},
-    {fr:"un foyer", en:"a household", ex:"Le revenu du foyer détermine l'accès à certaines aides."},
-    {fr:"la génération", en:"generation", ex:"Chaque génération a ses propres défis."}
+    {fr:"la structure familiale", en:"family structure", pron:"lah strewk-tewr fah-mee-LYAHL", ex:"La structure familiale a beaucoup évolué.", exEn:"Family structure has changed a lot."},
+    {fr:"un parent", en:"a parent / relative", pron:"uhn pah-RAHN", ex:"Les parents jouent un rôle clé dans l'éducation.", exEn:"Parents play a key role in education."},
+    {fr:"la garde d'enfants", en:"childcare", pron:"lah gahrd dahn-FAHN", ex:"La garde d'enfants reste coûteuse pour les familles.", exEn:"Childcare remains expensive for families."},
+    {fr:"le congé parental", en:"parental leave", pron:"luh kohn-zhay pah-rahn-TAHL", ex:"Le congé parental est mieux partagé aujourd'hui.", exEn:"Parental leave is better shared today."},
+    {fr:"un foyer", en:"a household", pron:"uhn fwah-YAY", ex:"Le revenu du foyer détermine l'accès à certaines aides.", exEn:"Household income determines access to certain benefits."},
+    {fr:"la génération", en:"generation", pron:"lah zhay-nay-rah-SYOHN", ex:"Chaque génération a ses propres défis.", exEn:"Each generation has its own challenges."}
   ]},
   { key:"topic12", cards:[
-    {fr:"le patrimoine culturel", en:"cultural heritage", ex:"Le patrimoine culturel doit être préservé."},
-    {fr:"une œuvre", en:"a (creative) work", ex:"Cette œuvre a marqué l'histoire de l'art."},
-    {fr:"la diversité", en:"diversity", ex:"La diversité culturelle se reflète dans la gastronomie."},
-    {fr:"un événement culturel", en:"a cultural event", ex:"La ville organise un grand événement culturel."},
-    {fr:"l'identité", en:"identity", ex:"La langue façonne l'identité d'un peuple."},
-    {fr:"la mondialisation culturelle", en:"cultural globalization", ex:"La mondialisation culturelle inquiète certains artistes."}
+    {fr:"le patrimoine culturel", en:"cultural heritage", pron:"luh pah-tree-mwahn kewl-tew-REHL", ex:"Le patrimoine culturel doit être préservé.", exEn:"Cultural heritage must be preserved."},
+    {fr:"une œuvre", en:"a (creative) work", pron:"ewn UHVR", ex:"Cette œuvre a marqué l'histoire de l'art.", exEn:"This work marked the history of art."},
+    {fr:"la diversité", en:"diversity", pron:"lah dee-vehr-see-TAY", ex:"La diversité culturelle se reflète dans la gastronomie.", exEn:"Cultural diversity is reflected in cuisine."},
+    {fr:"un événement culturel", en:"a cultural event", pron:"uhn nay-vayn-mahn kewl-tew-REHL", ex:"La ville organise un grand événement culturel.", exEn:"The city is organizing a big cultural event."},
+    {fr:"l'identité", en:"identity", pron:"lee-dahn-tee-TAY", ex:"La langue façonne l'identité d'un peuple.", exEn:"Language shapes a people's identity."},
+    {fr:"la mondialisation culturelle", en:"cultural globalization", pron:"lah mohn-dyah-lee-zah-syohn kewl-tew-REHL", ex:"La mondialisation culturelle inquiète certains artistes.", exEn:"Cultural globalization worries some artists."}
   ]},
   { key:"topic13", cards:[
-    {fr:"la criminalité", en:"crime (rate)", ex:"La criminalité a légèrement baissé cette année."},
-    {fr:"un délit", en:"an offense", ex:"Ce délit est puni par la loi."},
-    {fr:"la sécurité", en:"security / safety", ex:"La sécurité publique est une priorité du gouvernement."},
-    {fr:"une peine de prison", en:"a prison sentence", ex:"Il a été condamné à une peine de prison."},
-    {fr:"la récidive", en:"reoffending", ex:"Le taux de récidive reste préoccupant."},
-    {fr:"la prévention de la délinquance", en:"crime prevention", ex:"La prévention de la délinquance commence tôt."}
+    {fr:"la criminalité", en:"crime (rate)", pron:"lah kree-mee-nah-lee-TAY", ex:"La criminalité a légèrement baissé cette année.", exEn:"The crime rate dropped slightly this year."},
+    {fr:"un délit", en:"an offense", pron:"uhn day-LEE", ex:"Ce délit est puni par la loi.", exEn:"This offense is punishable by law."},
+    {fr:"la sécurité", en:"security / safety", pron:"lah say-kew-ree-TAY", ex:"La sécurité publique est une priorité du gouvernement.", exEn:"Public safety is a government priority."},
+    {fr:"une peine de prison", en:"a prison sentence", pron:"ewn pehn duh pree-ZOHN", ex:"Il a été condamné à une peine de prison.", exEn:"He was sentenced to prison."},
+    {fr:"la récidive", en:"reoffending", pron:"lah ray-see-DEEV", ex:"Le taux de récidive reste préoccupant.", exEn:"The reoffending rate remains concerning."},
+    {fr:"la prévention de la délinquance", en:"crime prevention", pron:"lah pray-vahn-syohn duh lah day-lan-KAHNS", ex:"La prévention de la délinquance commence tôt.", exEn:"Crime prevention starts early."}
   ]},
   { key:"topic14", cards:[
-    {fr:"la justice", en:"justice", ex:"L'accès à la justice doit être garanti à tous."},
-    {fr:"un tribunal", en:"a court", ex:"L'affaire sera jugée devant le tribunal."},
-    {fr:"un avocat", en:"a lawyer", ex:"L'avocat a plaidé la légitime défense."},
-    {fr:"un procès", en:"a trial", ex:"Le procès a duré plusieurs semaines."},
-    {fr:"les droits de l'homme", en:"human rights", ex:"Les droits de l'homme sont universels."},
-    {fr:"une loi", en:"a law", ex:"Cette loi entrera en vigueur en janvier."}
+    {fr:"la justice", en:"justice", pron:"lah zhew-STEES", ex:"L'accès à la justice doit être garanti à tous.", exEn:"Access to justice must be guaranteed to everyone."},
+    {fr:"un tribunal", en:"a court", pron:"uhn tree-bew-NAHL", ex:"L'affaire sera jugée devant le tribunal.", exEn:"The case will be tried in court."},
+    {fr:"un avocat", en:"a lawyer", pron:"uhn nah-voh-KAH", ex:"L'avocat a plaidé la légitime défense.", exEn:"The lawyer argued self-defense."},
+    {fr:"un procès", en:"a trial", pron:"uhn proh-SEH", ex:"Le procès a duré plusieurs semaines.", exEn:"The trial lasted several weeks."},
+    {fr:"les droits de l'homme", en:"human rights", pron:"leh drwah duh LOHM", ex:"Les droits de l'homme sont universels.", exEn:"Human rights are universal."},
+    {fr:"une loi", en:"a law", pron:"ewn LWAH", ex:"Cette loi entrera en vigueur en janvier.", exEn:"This law will take effect in January."}
   ]},
   { key:"topic15", cards:[
-    {fr:"l'égalité des sexes", en:"gender equality", ex:"L'égalité des sexes progresse lentement au travail."},
-    {fr:"la discrimination", en:"discrimination", ex:"La discrimination à l'embauche reste fréquente."},
-    {fr:"l'équité", en:"fairness / equity", ex:"L'équité salariale est revendiquée depuis des années."},
-    {fr:"les droits", en:"rights", ex:"Les droits fondamentaux doivent être protégés."},
-    {fr:"une minorité", en:"a minority", ex:"Les minorités sont souvent sous-représentées."},
-    {fr:"la parité", en:"parity", ex:"La parité est loin d'être atteinte dans certains secteurs."}
+    {fr:"l'égalité des sexes", en:"gender equality", pron:"lay-gah-lee-tay deh SEHKS", ex:"L'égalité des sexes progresse lentement au travail.", exEn:"Gender equality is progressing slowly at work."},
+    {fr:"la discrimination", en:"discrimination", pron:"lah dees-kree-mee-nah-SYOHN", ex:"La discrimination à l'embauche reste fréquente.", exEn:"Hiring discrimination remains common."},
+    {fr:"l'équité", en:"fairness / equity", pron:"lay-kee-TAY", ex:"L'équité salariale est revendiquée depuis des années.", exEn:"Pay equity has been demanded for years."},
+    {fr:"les droits", en:"rights", pron:"leh DRWAH", ex:"Les droits fondamentaux doivent être protégés.", exEn:"Fundamental rights must be protected."},
+    {fr:"une minorité", en:"a minority", pron:"ewn mee-noh-ree-TAY", ex:"Les minorités sont souvent sous-représentées.", exEn:"Minorities are often underrepresented."},
+    {fr:"la parité", en:"parity", pron:"lah pah-ree-TAY", ex:"La parité est loin d'être atteinte dans certains secteurs.", exEn:"Parity is far from achieved in some sectors."}
   ]},
   { key:"topic16", cards:[
-    {fr:"les conditions de travail", en:"working conditions", ex:"Les conditions de travail se sont améliorées."},
-    {fr:"un salarié", en:"an employee", ex:"Le salarié a droit à des congés payés."},
-    {fr:"la semaine de travail", en:"the work week", ex:"Certains pays testent la semaine de quatre jours."},
-    {fr:"l'équilibre vie pro-vie perso", en:"work-life balance", ex:"L'équilibre vie pro-vie perso est un enjeu majeur."},
-    {fr:"une négociation", en:"a negotiation", ex:"La négociation salariale a été difficile."},
-    {fr:"le syndicat", en:"the (labor) union", ex:"Le syndicat a organisé une grève."}
+    {fr:"les conditions de travail", en:"working conditions", pron:"leh kohn-dee-syohn duh trah-VAHY", ex:"Les conditions de travail se sont améliorées.", exEn:"Working conditions have improved."},
+    {fr:"un salarié", en:"an employee", pron:"uhn sah-lah-RYAY", ex:"Le salarié a droit à des congés payés.", exEn:"The employee is entitled to paid leave."},
+    {fr:"la semaine de travail", en:"the work week", pron:"lah suh-mehn duh trah-VAHY", ex:"Certains pays testent la semaine de quatre jours.", exEn:"Some countries are testing the four-day work week."},
+    {fr:"l'équilibre vie pro-vie perso", en:"work-life balance", pron:"lay-kee-leebr vee proh vee pehr-SOH", ex:"L'équilibre vie pro-vie perso est un enjeu majeur.", exEn:"Work-life balance is a major issue."},
+    {fr:"une négociation", en:"a negotiation", pron:"ewn nay-goh-syah-SYOHN", ex:"La négociation salariale a été difficile.", exEn:"The salary negotiation was difficult."},
+    {fr:"le syndicat", en:"the (labor) union", pron:"luh san-dee-KAH", ex:"Le syndicat a organisé une grève.", exEn:"The union organized a strike."}
   ]},
   { key:"topic17", cards:[
-    {fr:"une découverte", en:"a discovery", ex:"Cette découverte pourrait changer la médecine."},
-    {fr:"la recherche scientifique", en:"scientific research", ex:"La recherche scientifique nécessite des financements."},
-    {fr:"une expérience", en:"an experiment", ex:"Les résultats de l'expérience sont concluants."},
-    {fr:"l'éthique", en:"ethics", ex:"L'éthique scientifique encadre certaines pratiques."},
-    {fr:"un chercheur", en:"a researcher", ex:"Le chercheur a publié ses résultats récemment."},
-    {fr:"une avancée technologique", en:"a technological advance", ex:"Cette avancée technologique suscite l'espoir."}
+    {fr:"une découverte", en:"a discovery", pron:"ewn day-koo-VEHRT", ex:"Cette découverte pourrait changer la médecine.", exEn:"This discovery could change medicine."},
+    {fr:"la recherche scientifique", en:"scientific research", pron:"lah ruh-shersh syahn-tee-FEEK", ex:"La recherche scientifique nécessite des financements.", exEn:"Scientific research requires funding."},
+    {fr:"une expérience", en:"an experiment", pron:"ewn ehk-spay-RYAHNS", ex:"Les résultats de l'expérience sont concluants.", exEn:"The experiment's results are conclusive."},
+    {fr:"l'éthique", en:"ethics", pron:"lay-TEEK", ex:"L'éthique scientifique encadre certaines pratiques.", exEn:"Scientific ethics regulates certain practices."},
+    {fr:"un chercheur", en:"a researcher", pron:"uhn shehr-SHUHR", ex:"Le chercheur a publié ses résultats récemment.", exEn:"The researcher recently published his results."},
+    {fr:"une avancée technologique", en:"a technological advance", pron:"ewn nah-vahn-say tehk-noh-loh-ZHEEK", ex:"Cette avancée technologique suscite l'espoir.", exEn:"This technological advance inspires hope."}
   ]},
   { key:"connectors", cards:[
-    {fr:"puisque", en:"since (cause)", ex:"Puisque vous êtes d'accord, nous pouvons continuer."},
-    {fr:"étant donné que", en:"given that", ex:"Étant donné que le budget est limité, il faut prioriser."},
-    {fr:"en raison de", en:"due to", ex:"Le vol a été annulé en raison du mauvais temps."},
-    {fr:"grâce à", en:"thanks to", ex:"Grâce à cette réforme, l'accès aux soins s'est amélioré."},
-    {fr:"par conséquent", en:"consequently", ex:"Par conséquent, les prix ont augmenté."},
-    {fr:"ainsi", en:"thus", ex:"Ainsi, le projet a pu voir le jour."},
-    {fr:"de ce fait", en:"as a result", ex:"De ce fait, la demande a explosé."},
-    {fr:"donc", en:"so / therefore", ex:"Il pleut, donc nous restons à la maison."},
-    {fr:"cependant", en:"however", ex:"Cependant, des progrès restent à faire."},
-    {fr:"toutefois", en:"nevertheless", ex:"Toutefois, la situation reste fragile."},
-    {fr:"néanmoins", en:"nonetheless", ex:"Néanmoins, le projet a été un succès."},
-    {fr:"en revanche", en:"on the other hand", ex:"En revanche, les coûts ont augmenté."},
-    {fr:"bien que", en:"although", ex:"Bien que ce soit difficile, elle a réussi."},
-    {fr:"malgré", en:"despite", ex:"Malgré les obstacles, il a persévéré."},
-    {fr:"même si", en:"even if", ex:"Même si c'est risqué, il faut essayer."},
-    {fr:"certes… mais…", en:"admittedly… but…", ex:"Certes, c'est coûteux, mais c'est nécessaire."},
-    {fr:"de plus", en:"moreover", ex:"De plus, ce plan réduit les coûts."},
-    {fr:"en outre", en:"furthermore", ex:"En outre, le délai a été raccourci."},
-    {fr:"par ailleurs", en:"besides", ex:"Par ailleurs, une aide financière est prévue."},
-    {fr:"en somme", en:"in short", ex:"En somme, la réforme a porté ses fruits."},
-    {fr:"en définitive", en:"ultimately", ex:"En définitive, le bilan est positif."},
-    {fr:"pour conclure", en:"to conclude", ex:"Pour conclure, cette approche mérite d'être développée."}
+    {fr:"puisque", en:"since (cause)", pron:"PWEESK", ex:"Puisque vous êtes d'accord, nous pouvons continuer.", exEn:"Since you agree, we can continue."},
+    {fr:"étant donné que", en:"given that", pron:"ay-tahn doh-nay KUH", ex:"Étant donné que le budget est limité, il faut prioriser.", exEn:"Given that the budget is limited, we must prioritize."},
+    {fr:"en raison de", en:"due to", pron:"ahn reh-zohn DUH", ex:"Le vol a été annulé en raison du mauvais temps.", exEn:"The flight was canceled due to bad weather."},
+    {fr:"grâce à", en:"thanks to", pron:"grahs AH", ex:"Grâce à cette réforme, l'accès aux soins s'est amélioré.", exEn:"Thanks to this reform, access to care has improved."},
+    {fr:"par conséquent", en:"consequently", pron:"par kohn-say-KAHN", ex:"Par conséquent, les prix ont augmenté.", exEn:"Consequently, prices have gone up."},
+    {fr:"ainsi", en:"thus", pron:"an-SEE", ex:"Ainsi, le projet a pu voir le jour.", exEn:"Thus, the project was able to come to life."},
+    {fr:"de ce fait", en:"as a result", pron:"duh suh FEH", ex:"De ce fait, la demande a explosé.", exEn:"As a result, demand has exploded."},
+    {fr:"donc", en:"so / therefore", pron:"DOHNK", ex:"Il pleut, donc nous restons à la maison.", exEn:"It's raining, so we're staying home."},
+    {fr:"cependant", en:"however", pron:"suh-pahn-DAHN", ex:"Cependant, des progrès restent à faire.", exEn:"However, progress still needs to be made."},
+    {fr:"toutefois", en:"nevertheless", pron:"toot-FWAH", ex:"Toutefois, la situation reste fragile.", exEn:"Nevertheless, the situation remains fragile."},
+    {fr:"néanmoins", en:"nonetheless", pron:"nay-ahn-MWAN", ex:"Néanmoins, le projet a été un succès.", exEn:"Nonetheless, the project was a success."},
+    {fr:"en revanche", en:"on the other hand", pron:"ahn ruh-VAHNSH", ex:"En revanche, les coûts ont augmenté.", exEn:"On the other hand, costs have increased."},
+    {fr:"bien que", en:"although", pron:"byan KUH", ex:"Bien que ce soit difficile, elle a réussi.", exEn:"Although it's difficult, she succeeded."},
+    {fr:"malgré", en:"despite", pron:"mahl-GRAY", ex:"Malgré les obstacles, il a persévéré.", exEn:"Despite the obstacles, he persevered."},
+    {fr:"même si", en:"even if", pron:"mehm SEE", ex:"Même si c'est risqué, il faut essayer.", exEn:"Even if it's risky, you have to try."},
+    {fr:"certes… mais…", en:"admittedly… but…", pron:"SEHRT... meh", ex:"Certes, c'est coûteux, mais c'est nécessaire.", exEn:"Admittedly, it's costly, but it's necessary."},
+    {fr:"de plus", en:"moreover", pron:"duh PLEWS", ex:"De plus, ce plan réduit les coûts.", exEn:"Moreover, this plan reduces costs."},
+    {fr:"en outre", en:"furthermore", pron:"ahn NOOTR", ex:"En outre, le délai a été raccourci.", exEn:"Furthermore, the deadline was shortened."},
+    {fr:"par ailleurs", en:"besides", pron:"par ah-YUHR", ex:"Par ailleurs, une aide financière est prévue.", exEn:"Besides, financial aid is planned."},
+    {fr:"en somme", en:"in short", pron:"ahn SOHM", ex:"En somme, la réforme a porté ses fruits.", exEn:"In short, the reform paid off."},
+    {fr:"en définitive", en:"ultimately", pron:"ahn day-fee-nee-TEEV", ex:"En définitive, le bilan est positif.", exEn:"Ultimately, the outcome is positive."},
+    {fr:"pour conclure", en:"to conclude", pron:"poor kohn-KLEWR", ex:"Pour conclure, cette approche mérite d'être développée.", exEn:"To conclude, this approach deserves to be developed."}
   ]}
 ];
 function deckTitle(key, lang){
@@ -364,7 +364,7 @@ var DICT = {
   },
   en: {
     locale: "en-US",
-    heroTitle: "My French Plan 🥐",
+    heroTitle: "Tia's French Plan 🥐",
     heroSub: "90 Days to NCLC 9",
     heroTag: "An intensive 7h/day program toward TEF/TCF Canada — listening, reading, speaking and writing, all pushed toward C1 level.",
     examAria: "Exam choice",
@@ -1097,13 +1097,14 @@ function renderFlashcardViewer(state, lang, t){
         +'<div class="flashcard-face front">'
           +'<div class="fc-row"><div class="word">'+esc(card.fr)+'</div>'
             +'<button type="button" class="speak-btn" data-action="speak" data-lang="fr-FR" data-text="'+esc(card.fr)+'" aria-label="'+esc(t.listenAria)+'">🔊</button></div>'
+          +'<div class="pron">/ '+esc(card.pron)+' /</div>'
           +'<div class="fc-ex-row"><div class="ex">'+esc(card.ex)+'</div>'
             +'<button type="button" class="speak-btn small" data-action="speak" data-lang="fr-FR" data-text="'+esc(card.ex)+'" aria-label="'+esc(t.listenAria)+'">🔊</button></div>'
           +'<div class="hint">'+esc(t.fcFlipHint)+'</div>'
         +'</div>'
         +'<div class="flashcard-face back">'
-          +'<div class="fc-row"><div class="word">'+esc(card.en)+'</div>'
-            +'<button type="button" class="speak-btn" data-action="speak" data-lang="en-US" data-text="'+esc(card.en)+'" aria-label="'+esc(t.listenAria)+'">🔊</button></div>'
+          +'<div class="fc-row"><div class="word">'+esc(card.en)+'</div></div>'
+          +'<div class="ex">'+esc(card.exEn)+'</div>'
           +'<div class="hint">'+esc(t.fcFlipHint)+'</div>'
         +'</div>'
       +'</div>'

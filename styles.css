@@ -302,6 +302,7 @@ button{ font-family:inherit; }
 .flashcard-face.front{ background:linear-gradient(155deg, var(--surface), var(--surface-soft)); }
 .flashcard-face.back{ background:var(--accent-blue-soft); transform:rotateY(180deg); }
 .flashcard-face .word{ font-family:'Fraunces',serif; font-size:1.5rem; font-weight:700; color:var(--ink); }
+.flashcard-face .pron{ font-size:0.78rem; color:var(--accent-blue); font-weight:700; letter-spacing:0.02em; }
 .flashcard-face .ex{ font-size:0.85rem; color:var(--ink-soft); font-style:italic; max-width:32ch; text-align:left; }
 .flashcard-face .hint{ position:absolute; bottom:12px; font-size:0.65rem; color:var(--ink-faint); text-transform:uppercase; letter-spacing:0.05em; }
 .fc-row{ display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; }
