@@ -5,5 +5,5 @@
    What actually protects each user's data is Row Level Security (see
    supabase-schema.sql), which only lets a signed-in user read/write their own row.
 */
-var SUPABASE_URL = "https://YOUR-PROJECT-REF.supabase.co";
-var SUPABASE_ANON_KEY = "YOUR-ANON-PUBLIC-KEY";
+var SUPABASE_URL = "https://cywpuskevyqzrpwnzepz.supabase.co";
+var SUPABASE_ANON_KEY = "sb_publishable_c4RTjLa4XG1lL0xhnOSBYQ_C6OdAwBk";
