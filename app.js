@@ -598,7 +598,7 @@ var DICT = {
     }
   }
 };
-function T(lang){ return DICT[lang] || DICT.fr; }
+function T(lang){ return DICT[lang] || DICT.en; }
 
 /* ---------------- date helpers ---------------- */
 function parseISO(s){ var p=s.split('-').map(Number); return new Date(p[0],p[1]-1,p[2]); }
@@ -728,7 +728,7 @@ function blocksForWeekday(weekdayJs){ return weekdayJs===0 ? BLOCKS_SUNDAY : BLO
 
 /* ---------------- state ---------------- */
 function defaultState(){
-  return { startDate: "2026-09-12", startDateChangedOnce: false, onboardingSeen: false, examTarget: "TEF", lang: "fr", theme: "system", tasks: {}, notes: { listening:"", reading:"", speaking:"", writing:"" }, quizScores: {}, quizHistory: [], tcfScores: { listening:null, reading:null, speaking:null, writing:null } };
+  return { startDate: "2026-09-12", startDateChangedOnce: false, onboardingSeen: false, examTarget: "TEF", lang: "en", theme: "system", tasks: {}, notes: { listening:"", reading:"", speaking:"", writing:"" }, quizScores: {}, quizHistory: [], tcfScores: { listening:null, reading:null, speaking:null, writing:null } };
 }
 /* merges a raw state blob (as loaded from Supabase) over the defaults, so any field
    added to the app after a user's row was first created still gets a sane fallback */
@@ -1141,7 +1141,7 @@ function renderTcfOverall(result, t){
   return '<div class="tcf-overall" id="tcf-overall-block">'+inner+'</div>';
 }
 function renderTcfCalculator(state){
-  var lang = state.lang || 'fr';
+  var lang = state.lang || 'en';
   var t = T(lang), tt = t.tcf;
   var scores = state.tcfScores || {};
   var result = computeTcfResult(scores);
@@ -1158,7 +1158,7 @@ function renderTcfCalculator(state){
 }
 /* Partial DOM refresh (no full re-render) so the number inputs keep focus while typing. */
 function updateTcfUI(){
-  var lang = STATE.lang || 'fr';
+  var lang = STATE.lang || 'en';
   var t = T(lang);
   var scores = STATE.tcfScores || {};
   var result = computeTcfResult(scores);
@@ -1180,7 +1180,7 @@ function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 
 /* ---------------- splash + auth screens ---------------- */
 function preAuthLang(){
-  try{ return (navigator.language||'fr').toLowerCase().indexOf('fr')===0 ? 'fr' : 'en'; }catch(e){ return 'fr'; }
+  try{ return (navigator.language||'en').toLowerCase().indexOf('fr')===0 ? 'fr' : 'en'; }catch(e){ return 'en'; }
 }
 function renderSplash(){
   var t = T(preAuthLang()).auth;
@@ -1317,7 +1317,7 @@ function applyTheme(){
   }
 }
 function renderThemeToggleButton(extraClass){
-  var lang = STATE.lang || 'fr';
+  var lang = STATE.lang || 'en';
   var t = T(lang);
   var current = resolvedTheme();
   var icon = current === 'dark' ? '☀️' : '🌙';
@@ -1399,7 +1399,7 @@ function renderCatSVG(mood){
   +'</svg>';
 }
 function renderCatCompanion(){
-  var lang = STATE.lang || 'fr';
+  var lang = STATE.lang || 'en';
   var t = T(lang);
   return ''
   +'<div class="cat-companion">'
@@ -1410,7 +1410,7 @@ function renderCatCompanion(){
 
 /* ---------------- top bar (profile / logout / settings) ---------------- */
 function renderTopBar(){
-  var lang = STATE.lang || 'fr';
+  var lang = STATE.lang || 'en';
   var t = T(lang);
   var email = uiAuthUser ? uiAuthUser.email : '';
   var initial = email ? email.charAt(0).toUpperCase() : '?';
@@ -1435,7 +1435,7 @@ function renderTopBar(){
 
 /* ---------------- Day 1 picker modal ---------------- */
 function renderDay1Modal(){
-  var lang = STATE.lang || 'fr';
+  var lang = STATE.lang || 'en';
   var t = T(lang);
   var today = new Date();
   var iso = today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
@@ -1463,7 +1463,7 @@ var TOUR_STEPS = [
 function startTour(){ uiActiveTab = 'plan'; uiTourStep = 0; render(); } // step 1 targets the calendar, which only exists on the Plan tab
 function renderTourOverlay(){
   if(uiTourStep === null) return '';
-  var lang = STATE.lang || 'fr';
+  var lang = STATE.lang || 'en';
   var t = T(lang).tour;
   var step = TOUR_STEPS[uiTourStep];
   var isLast = uiTourStep === TOUR_STEPS.length - 1;
@@ -1525,19 +1525,34 @@ function positionTour(){
   });
 }
 
+/* first name-ish label derived from the account email, e.g. "sogo.victor@x.com" -> "Sogo Victor" */
+function displayName(){
+  if(!uiAuthUser || !uiAuthUser.email) return '';
+  var local = uiAuthUser.email.split('@')[0].replace(/[._-]+/g, ' ').trim();
+  if(!local) return '';
+  return local.split(' ').map(function(w){ return w.charAt(0).toUpperCase() + w.slice(1); }).join(' ');
+}
+function timeGreeting(lang){
+  var hour = new Date().getHours();
+  var bucket = hour < 12 ? 'morning' : (hour < 18 ? 'afternoon' : 'evening');
+  var text = { fr: {morning:'Bonjour', afternoon:'Bon après-midi', evening:'Bonsoir'}, en: {morning:'Good morning', afternoon:'Good afternoon', evening:'Good evening'} };
+  return (text[lang]||text.en)[bucket];
+}
 function renderHero(state){
-  var lang = state.lang || 'fr';
+  var lang = state.lang || 'en';
   var t = T(lang);
   var idx = currentDayIndex(state);
   var dayLabel = idx < 1 ? t.notStarted : (idx > TOTAL_DAYS ? t.planDone : t.dayWord+" "+idx);
   var ph = phaseOf(Math.max(1, Math.min(idx, TOTAL_DAYS)), lang);
   var streak = computeStreak(state);
   var pct = computeOverallPct(state);
+  var name = displayName();
+  var greeting = timeGreeting(lang) + (name ? ', ' + name : '');
   return ''
   +'<section class="hero">'
     +'<div class="hero-top">'
       +'<div><h1>'+t.heroTitle+'</h1>'
-      +'<div class="sub">'+esc(t.heroSub)+'</div>'
+      +'<div class="sub">'+esc(greeting)+'</div>'
       +'<p class="tag">'+esc(t.heroTag)+'</p></div>'
       +'<div class="controls">'
         +'<div class="exam-toggle" role="group" aria-label="'+esc(t.examAria)+'">'
@@ -1569,7 +1584,7 @@ function renderHero(state){
 }
 
 function renderLegend(state){
-  var lang = state.lang || 'fr';
+  var lang = state.lang || 'en';
   var t = T(lang);
   return ''
   +'<div class="section">'
@@ -1583,7 +1598,7 @@ function renderLegend(state){
 }
 
 function renderCalendar(state){
-  var lang = state.lang || 'fr';
+  var lang = state.lang || 'en';
   var t = T(lang);
   var todayIdx = currentDayIndex(state);
   // figure leading blanks so day 1 aligns under its real weekday (Mon-first grid)
@@ -1620,7 +1635,7 @@ function renderCalendar(state){
 
 function renderPanel(state, day){
   if(!day) return '';
-  var lang = state.lang || 'fr';
+  var lang = state.lang || 'en';
   var t = T(lang);
   var wd = dateForDay(state.startDate, day).getDay();
   var blocks = blocksForWeekday(wd);
@@ -1649,7 +1664,7 @@ function renderPanel(state, day){
 }
 
 function renderSkills(state){
-  var lang = state.lang || 'fr';
+  var lang = state.lang || 'en';
   var t = T(lang);
   var prog = computeSkillProgress(state);
   var colorFor = { grammar:"var(--accent-blue)", vocab:"var(--accent-pink)", listening:"var(--accent-green)", reading:"var(--accent-amber)", speaking:"var(--accent-pink)", writing:"var(--accent-blue)" };
@@ -1666,7 +1681,7 @@ function renderSkills(state){
 }
 
 function renderFlashcards(state){
-  var lang = state.lang || 'fr';
+  var lang = state.lang || 'en';
   var t = T(lang);
   var deckButtons = FLASHCARD_DECKS.map(function(d){
     var scoreEntry = state.quizScores[d.key];
@@ -1773,7 +1788,7 @@ function renderQuiz(state, lang, t){
 }
 
 function renderResults(state){
-  var lang = state.lang || 'fr';
+  var lang = state.lang || 'en';
   var t = T(lang), tr = t.results;
   var history = (state.quizHistory || []).slice().reverse();
   var total = history.length;
@@ -1808,7 +1823,7 @@ function renderResults(state){
 }
 
 function renderNotebook(state){
-  var lang = state.lang || 'fr';
+  var lang = state.lang || 'en';
   var t = T(lang);
   var order = ["listening","reading","speaking","writing"];
   var cards = order.map(function(id){
@@ -1824,7 +1839,7 @@ function renderNotebook(state){
 }
 
 function renderFooter(state){
-  var lang = state.lang || 'fr';
+  var lang = state.lang || 'en';
   var t = T(lang);
   return ''
   +'<div class="footer">'
@@ -1836,8 +1851,8 @@ function renderFooter(state){
 
 var NAV_TABS = [
   {id:'plan', ic:'🏠'},
-  {id:'test', ic:'🎯'},
   {id:'results', ic:'🏆'},
+  {id:'test', ic:'🎯'},
   {id:'tcf', ic:'🎓'},
   {id:'notebook', ic:'🗂️'}
 ];
@@ -1855,7 +1870,7 @@ function renderBottomNav(activeTab, lang){
   +'</nav>';
 }
 function bodyContentHTML(state, openDay){
-  var lang = state.lang || 'fr';
+  var lang = state.lang || 'en';
   var t = T(lang);
   var tab = uiActiveTab || 'plan';
   var main = '';
@@ -2040,7 +2055,7 @@ async function doLogout(){
 
 /* ---------------- render + events ---------------- */
 function render(){
-  document.documentElement.setAttribute('lang', STATE.lang || 'fr');
+  document.documentElement.setAttribute('lang', STATE.lang || 'en');
   applyTheme();
   var root = document.getElementById('root');
   root.innerHTML = uiAuthView !== 'app' ? renderAuthScreen() : bodyContentHTML(STATE, uiOpenDay);
