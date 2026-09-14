@@ -517,26 +517,25 @@ button{ font-family:inherit; }
 .day1-modal h3{ font-family:'Fraunces',serif; font-size:1.25rem; margin-top:6px; }
 .day1-modal .auth-input{ margin-top:16px; text-align:center; }
 
-/* ---------- cat companion (CSS/SVG mascot) ---------- */
-.cat-companion{ position:fixed; right:16px; bottom:calc(122px + env(safe-area-inset-bottom)); z-index:83; display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
+/* ---------- Tia companion (illustrated mascot images) ---------- */
+.cat-companion{ position:fixed; right:12px; bottom:calc(118px + env(safe-area-inset-bottom)); z-index:83; display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
 .cat-avatar{
-  width:58px; height:58px; border-radius:50%; background:var(--surface); border:2px solid var(--border);
-  box-shadow:var(--shadow); cursor:pointer; padding:5px; animation:cat-idle-bob 3s ease-in-out infinite;
+  width:auto; height:112px; background:none; border:none; padding:0; cursor:pointer;
+  filter:drop-shadow(0 8px 14px rgba(46,36,64,0.3));
+  animation:cat-idle-bob 3.2s ease-in-out infinite;
 }
-.cat-avatar:active{ transform:scale(0.92); }
-.cat-svg{ width:100%; height:100%; transform-origin:50% 60%; }
+.cat-avatar img{ height:100%; width:auto; display:block; }
+.cat-avatar:active{ transform:scale(0.94); }
 .cat-bubble{
   max-width:190px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
   box-shadow:var(--shadow-sm); padding:9px 12px; font-size:0.8rem; font-weight:700; color:var(--ink);
   animation:cat-bubble-in .25s ease;
 }
 @keyframes cat-bubble-in{ from{ opacity:0; transform:translateY(6px) scale(0.9); } to{ opacity:1; transform:translateY(0) scale(1); } }
-@keyframes cat-idle-bob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-4px); } }
-.cat-mood-excited{ animation:cat-excited-shake 0.5s ease-in-out infinite; }
-@keyframes cat-excited-shake{ 0%,100%{ transform:rotate(-4deg); } 50%{ transform:rotate(4deg); } }
-.cat-mood-sad{ opacity:0.85; }
-.cat-blink{ transform-box:fill-box; transform-origin:center; animation:cat-blink 4.5s ease-in-out infinite; }
-@keyframes cat-blink{ 0%,96%,100%{ transform:scaleY(1); } 98%{ transform:scaleY(0.1); } }
+@keyframes cat-idle-bob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-5px); } }
+.cat-mood-excited, .cat-mood-happy{ animation:cat-happy-wiggle 0.7s ease-in-out infinite; }
+@keyframes cat-happy-wiggle{ 0%,100%{ transform:translateY(0) rotate(-3deg); } 50%{ transform:translateY(-6px) rotate(3deg); } }
+.cat-mood-sad{ opacity:0.92; animation:none; }
 
 /* ---------- guided tour ---------- */
 .tour-layer{ position:fixed; inset:0; z-index:200; }
@@ -549,7 +548,8 @@ button{ font-family:inherit; }
   position:fixed; max-width:270px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
   box-shadow:var(--shadow); padding:16px 18px; text-align:center; z-index:201; transition:top .3s ease, left .3s ease;
 }
-.tour-cat{ width:52px; margin:0 auto; }
+.tour-cat{ height:64px; margin:0 auto; }
+.tour-cat img{ height:100%; width:auto; display:block; margin:0 auto; }
 .tour-msg{ font-size:0.86rem; color:var(--ink); margin-top:8px; font-weight:700; }
 .tour-actions{ display:flex; justify-content:space-between; align-items:center; margin-top:14px; gap:10px; }
 

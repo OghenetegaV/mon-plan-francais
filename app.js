@@ -751,6 +751,7 @@ var uiShowDay1Modal = false;
 var uiProfileMenuOpen = false;
 var uiTourStep = null; // index into TOUR_STEPS, or null when no tour is running
 var uiCatMood = 'idle';
+var uiCatPulsing = false; // true only during a transient reaction (e.g. right after a quiz answer)
 var uiCatBubbleOpen = false;
 var uiCatBubbleMsg = '';
 var catMoodTimer = null;
@@ -996,12 +997,21 @@ function computeSkillProgress(state){
   SKILL_CATS.forEach(function(s){ res[s.id] = {done:0,total:0}; });
   for(var day=1; day<=idx; day++){
     var wd = dateForDay(state.startDate, day).getDay();
-    if(wd===0) continue; // Sunday not counted toward fixed skill categories
     var done = state.tasks[day] || [];
-    SKILL_CATS.forEach(function(s){
-      res[s.id].total++;
-      if(done.indexOf(s.id)!==-1) res[s.id].done++;
-    });
+    if(wd===0){
+      // Sunday has no listening/reading/speaking/writing block, but its "review" block is
+      // explicitly grammar+vocab review (see blockLabels.review) — it should count toward those two,
+      // not be dropped entirely, or a week that starts on a Sunday shows 0% no matter what's checked
+      ["grammar","vocab"].forEach(function(id){
+        res[id].total++;
+        if(done.indexOf('review')!==-1) res[id].done++;
+      });
+    } else {
+      SKILL_CATS.forEach(function(s){
+        res[s.id].total++;
+        if(done.indexOf(s.id)!==-1) res[s.id].done++;
+      });
+    }
   }
   return res;
 }
@@ -1325,21 +1335,21 @@ function renderThemeToggleButton(extraClass){
   return '<button type="button" class="theme-toggle'+(extraClass?' '+extraClass:'')+'" data-action="toggle-theme" aria-label="'+esc(label)+'">'+icon+'</button>';
 }
 
-/* ---------------- cat companion (CSS/SVG mascot) ---------------- */
+/* ---------------- Tia companion (image mascot) ---------------- */
 var CAT_MESSAGES = {
   fr: {
-    idle: ["Prêt à apprendre un peu de français aujourd'hui ?", "Un petit quiz te dit ?", "Miaou ! Je suis là si tu as besoin d'un coup de patte."],
-    happy: ["Bravo, continue comme ça !", "Ta série est en feu ! 🔥", "Je suis fier de toi !"],
+    idle: ["Prêt à apprendre un peu de français aujourd'hui ?", "Un petit quiz te dit ?", "Je suis là si tu as besoin d'un coup de main."],
+    happy: ["Bravo, continue comme ça !", "Ta série est en feu ! 🔥", "Je suis fière de toi !"],
     excited: ["INCROYABLE ! Quel score !", "Wouah, tu déchires !", "On célèbre ça ! 🎉"],
     sad: ["Pas grave, on retente demain.", "Chaque erreur est une leçon.", "Je crois en toi, allez !"],
-    sleepy: ["Il est tard... on continue demain ?", "Zzz... pense à te reposer aussi."]
+    sleepy: ["Il est tard... on continue demain ?", "Pense à te reposer aussi."]
   },
   en: {
-    idle: ["Ready to learn some French today?", "Fancy a quick quiz?", "Meow! I'm here if you need a paw."],
+    idle: ["Ready to learn some French today?", "Fancy a quick quiz?", "I'm here if you need a hand."],
     happy: ["Nice work, keep it up!", "Your streak is on fire! 🔥", "I'm proud of you!"],
     excited: ["AMAZING! What a score!", "Wow, you're crushing it!", "Let's celebrate! 🎉"],
     sad: ["No worries, try again tomorrow.", "Every mistake is a lesson.", "I believe in you, let's go!"],
-    sleepy: ["It's getting late... continue tomorrow?", "Zzz... remember to rest too."]
+    sleepy: ["It's getting late... continue tomorrow?", "Remember to rest too."]
   }
 };
 function pickCatMessage(mood, lang){
@@ -1361,50 +1371,27 @@ function computeIdleCatMood(state){
 function pulseCatMood(mood, ms){
   clearTimeout(catMoodTimer);
   uiCatMood = mood;
-  catMoodTimer = setTimeout(function(){ uiCatMood = computeIdleCatMood(STATE); render(); }, ms || 4500);
+  uiCatPulsing = true;
+  catMoodTimer = setTimeout(function(){ uiCatMood = computeIdleCatMood(STATE); uiCatPulsing = false; render(); }, ms || 4500);
 }
-function renderCatSVG(mood){
-  var eyes, mouth, extra = '';
-  switch(mood){
-    case 'happy':
-      eyes = '<path d="M28 46 Q34 38 40 46" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/><path d="M60 46 Q66 38 72 46" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>';
-      mouth = '<path d="M40 58 Q50 68 60 58" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>';
-      extra = '<circle cx="24" cy="55" r="5" fill="var(--accent-pink)" opacity="0.55"/><circle cx="76" cy="55" r="5" fill="var(--accent-pink)" opacity="0.55"/>';
-      break;
-    case 'excited':
-      eyes = '<path d="M27 40 L34 47 M34 40 L27 47" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/><path d="M66 40 L73 47 M73 40 L66 47" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>';
-      mouth = '<ellipse cx="50" cy="60" rx="9" ry="7" fill="var(--ink)"/>';
-      extra = '<path d="M15 20 L18 26 M85 20 L82 26 M50 8 L50 15" stroke="var(--accent-amber)" stroke-width="3" stroke-linecap="round"/>';
-      break;
-    case 'sad':
-      eyes = '<path d="M28 44 Q34 50 40 44" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/><path d="M60 44 Q66 50 72 44" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>';
-      mouth = '<path d="M40 62 Q50 54 60 62" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>';
-      extra = '<path d="M32 60 L30 68 M68 60 L70 68" stroke="var(--accent-blue)" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>';
-      break;
-    case 'sleepy':
-      eyes = '<path d="M27 45 L41 45" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/><path d="M59 45 L73 45" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>';
-      mouth = '<path d="M45 58 Q50 62 55 58" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>';
-      extra = '<text x="70" y="26" font-size="13" fill="var(--ink-faint)" font-family="Nunito, sans-serif" font-weight="800">z</text><text x="79" y="18" font-size="9" fill="var(--ink-faint)" font-family="Nunito, sans-serif" font-weight="800">z</text>';
-      break;
-    default: // idle
-      eyes = '<circle cx="34" cy="45" r="4.5" fill="var(--ink)" class="cat-blink"/><circle cx="66" cy="45" r="4.5" fill="var(--ink)" class="cat-blink"/>';
-      mouth = '<path d="M42 58 Q50 64 58 58" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>';
-  }
-  return ''
-  +'<svg viewBox="0 0 100 100" class="cat-svg cat-mood-'+mood+'" aria-hidden="true">'
-    +'<path d="M20 30 L28 8 L38 26 Z" fill="var(--accent-pink-soft)" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"/>'
-    +'<path d="M80 30 L72 8 L62 26 Z" fill="var(--accent-pink-soft)" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"/>'
-    +'<circle cx="50" cy="52" r="38" fill="var(--surface)" stroke="var(--ink)" stroke-width="2.5"/>'
-    +eyes + mouth + extra
-  +'</svg>';
+/* Tia's portrait for a given mood/tab: on the Test tab she's tia-test.png at rest, no matter the
+   ambient mood (streak-happy, etc.) — only a live reaction (right after answering/finishing a
+   quiz) briefly swaps her to tia-happy/tia-angry, then she reverts to tia-test. Elsewhere she
+   defaults to tia-happy. There's no dedicated art for "excited"/"sleepy", so those fold into
+   whichever of the two mood images is closest. */
+function catImageSrc(mood, tab, pulsing){
+  if(tab === 'test' && !pulsing) return 'public/images/tia-test.png';
+  if(mood === 'sad') return 'public/images/tia-angry.png';
+  return 'public/images/tia-happy.png';
 }
 function renderCatCompanion(){
   var lang = STATE.lang || 'en';
   var t = T(lang);
+  var src = catImageSrc(uiCatMood, uiActiveTab, uiCatPulsing);
   return ''
   +'<div class="cat-companion">'
     +(uiCatBubbleOpen ? '<div class="cat-bubble">'+esc(uiCatBubbleMsg)+'</div>' : '')
-    +'<button type="button" class="cat-avatar" data-action="cat-tap" aria-label="'+esc(t.catAria)+'">'+renderCatSVG(uiCatMood)+'</button>'
+    +'<button type="button" class="cat-avatar cat-mood-'+uiCatMood+'" data-action="cat-tap" aria-label="'+esc(t.catAria)+'"><img src="'+src+'" alt="Tia"></button>'
   +'</div>';
 }
 
@@ -1475,7 +1462,7 @@ function renderTourOverlay(){
     +'<div class="tour-dismiss" data-action="tour-skip"></div>'
     +'<div class="tour-backdrop" id="tour-backdrop"></div>'
     +'<div class="tour-tooltip" id="tour-tooltip">'
-      +'<div class="tour-cat">'+renderCatSVG('excited')+'</div>'
+      +'<div class="tour-cat"><img src="public/images/tia-happy.png" alt="Tia"></div>'
       +'<div class="tour-msg">'+esc(t[step.key])+'</div>'
       +'<div class="tour-actions">'
         +'<button type="button" class="auth-link" data-action="tour-skip">'+esc(t.skip)+'</button>'
@@ -1958,7 +1945,7 @@ async function initAuthFlow(){
     if(event === 'SIGNED_IN' && session && session.user && uiAuthView !== 'app'){ enterApp(session.user); }
     if(event === 'SIGNED_OUT'){
       uiAuthUser = null; STATE = defaultState(); uiAuthView = 'login';
-      uiShowDay1Modal = false; uiProfileMenuOpen = false; uiTourStep = null; uiCatMood = 'idle'; uiCatBubbleOpen = false;
+      uiShowDay1Modal = false; uiProfileMenuOpen = false; uiTourStep = null; uiCatMood = 'idle'; uiCatPulsing = false; uiCatBubbleOpen = false;
       render();
     }
   });
