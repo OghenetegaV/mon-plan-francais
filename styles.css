@@ -540,6 +540,7 @@ button{ font-family:inherit; }
 
 /* ---------- guided tour ---------- */
 .tour-layer{ position:fixed; inset:0; z-index:200; }
+.tour-dismiss{ position:fixed; inset:0; }
 .tour-backdrop{
   position:fixed; left:var(--sx,50%); top:var(--sy,50%); width:var(--sw,0px); height:var(--sh,0px);
   border-radius:16px; box-shadow:0 0 0 9999px rgba(20,14,28,0.68); transition:all .3s ease; pointer-events:none;

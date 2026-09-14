@@ -1469,6 +1469,10 @@ function renderTourOverlay(){
   var isLast = uiTourStep === TOUR_STEPS.length - 1;
   return ''
   +'<div class="tour-layer">'
+    // .tour-dismiss is a plain full-screen tap target so anywhere outside the tooltip closes the
+    // tour; .tour-backdrop's darkened area is only a box-shadow (a visual "curtain" around the
+    // spotlight cutout), which is never hit-testable, so it can't carry the tap handler itself
+    +'<div class="tour-dismiss" data-action="tour-skip"></div>'
     +'<div class="tour-backdrop" id="tour-backdrop"></div>'
     +'<div class="tour-tooltip" id="tour-tooltip">'
       +'<div class="tour-cat">'+renderCatSVG('excited')+'</div>'
@@ -1480,6 +1484,10 @@ function renderTourOverlay(){
     +'</div>'
   +'</div>';
 }
+/* Positions the spotlight cutout + tooltip against the current step's target. Everything here is
+   clamped to the viewport: on narrow/short mobile screens a target can be taller than the screen
+   (e.g. the whole calendar grid), which previously produced a spotlight almost as big as the
+   viewport and pushed the tooltip's Skip/Next buttons off-screen entirely. */
 function positionTour(){
   if(uiTourStep === null) return;
   var step = TOUR_STEPS[uiTourStep];
@@ -1487,18 +1495,34 @@ function positionTour(){
   var backdrop = document.getElementById('tour-backdrop');
   var tooltip = document.getElementById('tour-tooltip');
   if(!target || !backdrop || !tooltip) return;
+  var vw = window.innerWidth, vh = window.innerHeight;
   var r = target.getBoundingClientRect();
   var pad = 8;
-  backdrop.style.setProperty('--sx', (r.left-pad)+'px');
-  backdrop.style.setProperty('--sy', (r.top-pad)+'px');
-  backdrop.style.setProperty('--sw', (r.width+pad*2)+'px');
-  backdrop.style.setProperty('--sh', (r.height+pad*2)+'px');
-  var spaceBelow = window.innerHeight - r.bottom;
-  var placeAbove = spaceBelow < 190 && r.top > 190;
-  if(placeAbove){ tooltip.style.top = (r.top - 12) + 'px'; tooltip.style.transform = 'translate(-50%, -100%)'; }
-  else { tooltip.style.top = (r.bottom + 12) + 'px'; tooltip.style.transform = 'translate(-50%, 0)'; }
-  var left = Math.max(160, Math.min(window.innerWidth-160, r.left + r.width/2));
-  tooltip.style.left = left + 'px';
+  var sx = Math.max(4, r.left - pad);
+  var sy = Math.max(4, r.top - pad);
+  var sw = Math.min(r.width + pad*2, vw - sx - 4);
+  var sh = Math.min(r.height + pad*2, vh - sy - 4);
+  backdrop.style.setProperty('--sx', sx+'px');
+  backdrop.style.setProperty('--sy', sy+'px');
+  backdrop.style.setProperty('--sw', Math.max(0,sw)+'px');
+  backdrop.style.setProperty('--sh', Math.max(0,sh)+'px');
+
+  var rTop = Math.max(0, Math.min(r.top, vh));
+  var rBottom = Math.max(0, Math.min(r.bottom, vh));
+  var spaceBelow = vh - rBottom, spaceAbove = rTop;
+  var placeAbove = spaceBelow < 190 && spaceAbove > 190;
+  var top = placeAbove ? (rTop - 12) : (rBottom + 12);
+  tooltip.style.transform = placeAbove ? 'translate(-50%, -100%)' : 'translate(-50%, 0)';
+  tooltip.style.top = top + 'px';
+  tooltip.style.left = Math.max(150, Math.min(vw-150, r.left + r.width/2)) + 'px';
+  // second pass once the browser has laid the tooltip out: pull it fully back on-screen if it still overflows
+  requestAnimationFrame(function(){
+    var tr = tooltip.getBoundingClientRect();
+    var dy = 0;
+    if(tr.top < 8) dy = 8 - tr.top;
+    else if(tr.bottom > vh - 8) dy = (vh - 8) - tr.bottom;
+    if(dy) tooltip.style.top = (top + dy) + 'px';
+  });
 }
 
 function renderHero(state){
@@ -1585,8 +1609,8 @@ function renderCalendar(state){
     rowsHtml += '<div class="cal-week">' + flat.slice(r, r+7).join('') + '</div>';
   }
   return ''
-  +'<div class="section" data-tour="calendar">'
-    +'<div class="section-head"><h2>'+esc(t.calTitle)+'</h2><span class="hint">'+esc(t.calHint)+'</span></div>'
+  +'<div class="section">'
+    +'<div class="section-head" data-tour="calendar"><h2>'+esc(t.calTitle)+'</h2><span class="hint">'+esc(t.calHint)+'</span></div>'
     +'<div class="cal-scroll"><div class="cal">'
       +'<div class="cal-weekdays">'+t.weekdays.map(function(h){return '<span>'+esc(h)+'</span>';}).join('')+'</div>'
       +rowsHtml
