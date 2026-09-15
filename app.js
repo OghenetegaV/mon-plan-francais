@@ -1380,9 +1380,9 @@ function pulseCatMood(mood, ms){
    defaults to tia-happy. There's no dedicated art for "excited"/"sleepy", so those fold into
    whichever of the two mood images is closest. */
 function catImageSrc(mood, tab, pulsing){
-  if(tab === 'test' && !pulsing) return 'public/images/tia-test.png';
-  if(mood === 'sad') return 'public/images/tia-angry.png';
-  return 'public/images/tia-happy.png';
+  if(tab === 'test' && !pulsing) return 'images/tia-test.png';
+  if(mood === 'sad') return 'images/tia-angry.png';
+  return 'images/tia-happy.png';
 }
 function renderCatCompanion(){
   var lang = STATE.lang || 'en';
@@ -1462,7 +1462,7 @@ function renderTourOverlay(){
     +'<div class="tour-dismiss" data-action="tour-skip"></div>'
     +'<div class="tour-backdrop" id="tour-backdrop"></div>'
     +'<div class="tour-tooltip" id="tour-tooltip">'
-      +'<div class="tour-cat"><img src="public/images/tia-happy.png" alt="Tia"></div>'
+      +'<div class="tour-cat"><img src="images/tia-happy.png" alt="Tia"></div>'
       +'<div class="tour-msg">'+esc(t[step.key])+'</div>'
       +'<div class="tour-actions">'
         +'<button type="button" class="auth-link" data-action="tour-skip">'+esc(t.skip)+'</button>'
